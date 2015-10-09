@@ -16,6 +16,9 @@ class SendSmscodeHandler(AuthHandler):
         '''
         try:
             mobile = self.get_argument('mobile')
+            if not mobile:
+                return self.write(error(ErrorCode.PARAMERR))
+
         except Exception as e:
             log.error(e)
             self.write(error(ErrorCode.PARAMERR))
