@@ -55,6 +55,8 @@ class YoucaiWeb(Application):
             (r'/api/address/list', address.ListHandler),
             (r'/api/recom_item/detail', recom_item.DetailHandler),
             (r'/api/home', home.HomeHandler),
+            (r'/api/auth/send_smscode', auth.SendSmscodeHandler),
+            (r'/api/auth/login', auth.LoginHandler),
         ]
         settings = dict(
             debug=options.debug,
