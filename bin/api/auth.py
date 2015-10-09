@@ -63,7 +63,7 @@ class LoginHandler(AuthHandler):
             return self.write(error(ErrorCode.CODEERR))
 
         try:
-            user = yield self.db['youcai'].user.find_one({'mobile': mobile}, {'_id': 0})
+            user = yield self.db['hamlet'].user.find_one({'mobile': mobile}, {'_id': 0})
             if not user:            # 新用户
                 user_id = mongo_uid('hamlet', 'user')
                 user_doc = {
