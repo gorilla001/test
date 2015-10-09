@@ -27,6 +27,7 @@ IMAGE_DEFAULT = 'https://img.shequcun.com/zone.jpg'
 IMAGE_DOMAIN = '/static/upload'
 UPLOAD_PATH = os.path.join(ROOT_PATH, 'static', 'upload')
 UPLOAD_DOC_PATH = os.path.join(ROOT_PATH, 'static', 'upload', 'import')
+IMG_CACHE_URL = 'http://7xjgn9.com2.z0.glb.qiniucdn.com'
 
 YC_USER_LIST_STORE_PATH = '/tmp'
 YC_USER_DOWNLOAD_URL = '/api/static_file'
