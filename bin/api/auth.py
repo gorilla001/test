@@ -99,12 +99,24 @@ class LoginHandler(AuthHandler):
                     'modified': now}
                 yield self.db['hamlet'].user.insert(user_doc)
 
+                self.save_userid(user_doc['id'])
+                del user_doc['_id']
                 self.session['op'] = user_doc
             else:
+                self.save_userid(user['id'])
                 self.session['op'] = user
             self.session.save()
+            return self.write({'login': True})
 
         except Exception as e:
             log.error(e)
             self.write(error(ErrorCode.DBERR))
             return
+
+
+class LogoutHandler(AuthHandler):
+    @coroutine
+    def post(self):
+        if self.userid:
+            self.session.remove()
+        return self.write({'logout': True})
