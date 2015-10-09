@@ -53,6 +53,7 @@ class YoucaiWeb(Application):
         handlers = [
             (r'/', IndexHandler),  # 首页
             (r'/api/address/list', address.ListHandler),
+            (r'/api/address/save', address.SaveHandler),
             (r'/api/recom_item/detail', recom_item.DetailHandler),
             (r'/api/home', home.HomeHandler),
             (r'/api/auth/send_smscode', auth.SendSmscodeHandler),
