@@ -66,7 +66,7 @@ class LoginHandler(AuthHandler):
             user = yield self.db['hamlet'].user.find_one({'mobile': mobile}, {'_id': 0})
             if not user:            # 新用户
                 user_id = mongo_uid('hamlet', 'user')
-                user_doc = {
+                user = {
                     'id': user_id,
                     'unionid': None,
                     'openid': None,
@@ -100,16 +100,26 @@ class LoginHandler(AuthHandler):
                     'offline': False,
                     'created': now,
                     'modified': now}
-                yield self.db['hamlet'].user.insert(user_doc)
+                yield self.db['hamlet'].user.insert(user)
 
-                self.save_userid(user_doc['id'])
-                del user_doc['_id']
-                self.session['op'] = user_doc
+                self.save_userid(user['id'])
+                del user['_id']
+                self.session['op'] = user
             else:
                 self.save_userid(user['id'])
                 self.session['op'] = user
             self.session.save()
-            return self.write({'login': True})
+
+            # 获取用户地址列表
+            address_list = yield self.db['hamlet'].address.find({'uid': self.userid}, {'_id': 0, 'default': 1, 'name': 1, 'mobile': 1, 'city': 1, 'region': 1, 'bur': 1, 'room': 1}).sort([('default', -1), ('id', 1)]).limit(10).to_list(10)
+            
+            op = {
+                'id': user['id'],
+                'mobile': user['mobile'],
+                'name': user['name'],
+                'nickname': user['nickname']
+            }
+            return self.write({'user': op, 'address_list': address_list})
 
         except Exception as e:
             log.error(e)

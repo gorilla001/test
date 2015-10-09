@@ -9,9 +9,9 @@ from util.helper import error, ErrorCode, mongo_uid, gen_orderno
 class HomeHandler(AuthHandler):
     @coroutine
     def get(self):
-        if self.userid == 0:
-            self.write(error(ErrorCode.LOGINERR))
-            return
+        # if self.userid == 0:
+        #     self.write(error(ErrorCode.LOGINERR))
+        #     return
 
         try:
             page = int(self.get_argument('page', 1))
