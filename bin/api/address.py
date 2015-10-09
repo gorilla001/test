@@ -15,7 +15,7 @@ class ListHandler(AuthHandler):
             return
 
         try:
-            addresses = yield self.db['hamlet'].address.find({'uid': self.userid}, {'_id': 0}).limit(10).to_list(10)
+            addresses = yield self.db['hamlet'].address.find({'uid': self.userid}, {'_id': 0}).sort('id', 1).limit(10).to_list(10)
             self.write(addresses)
         except Exception as e:
             log.error(e)
