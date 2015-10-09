@@ -24,28 +24,9 @@ tornado.options.define('debug', default=False, help='debug mode', type=bool)
 
 class IndexHandler(AuthHandler):
     @coroutine
-    @authenticated
     def get(self):
-
-        if self.userid == 0:
-            self.redirect('/login')
-            return
-
-        try:
-            op = self.session['op']
-            text = json.dumps(op)
-
-            basedata = {
-                'year': time.localtime(time.time()).tm_year
-            }
-
-            self.render('index.html', text=text, basedata=json.dumps(basedata))
-
-        except Exception as e:
-            log.error(e)
-            self.redirect('/login')
-
-
+        self.xsrf_token
+        self.render('index.html')
 
 
 class ProfileHandler(AuthHandler):
@@ -70,6 +51,7 @@ class HelpHandler(AuthHandler):
 class YoucaiWeb(Application):
     def __init__(self):
         handlers = [
+            (r'/', IndexHandler),  # 首页
             (r'/api/address/list', address.ListHandler),
             (r'/api/recom_item/detail', recom_item.DetailHandler),
             (r'/api/home', home.HomeHandler),
