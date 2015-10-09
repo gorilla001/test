@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from tornado.gen import coroutine
-from conf.settings import log
+from conf.settings import log, IMG_CACHE_URL, IMAGE_DOMAIN
 from base import AuthHandler
 from util.helper import error, ErrorCode, mongo_uid, gen_orderno
 
@@ -26,9 +26,14 @@ class HomeHandler(AuthHandler):
             recom_items = yield self.db['youcai'].recom_item.find({}, {'_id': 0}).sort([('id', -1)]).skip(
                 (page - 1) * length).limit(length).to_list(length)
             res = {
-                    'recom_item_list': []
-                }
+                'recom_item_list': []
+            }
             if recom_items:
+                if IMG_CACHE_URL:
+                    for recom_item in recom_items:
+                        recom_item['imgs'] = map(lambda x: IMG_CACHE_URL + x[len(IMAGE_DOMAIN)] if x.startwith(IMAGE_DOMAIN) else x, recom_item['imgs'])
+                        #recom_item['imgs'] = [IMG_CACHE_URL + x[len(IMAGE_DOMAIN)] if x.startwith(IMAGE_DOMAIN) else x for x in recom_item['imgs']]
+
                 res.update({'recom_item_list': recom_items})
 
             return self.write(res)

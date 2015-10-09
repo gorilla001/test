@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from tornado.gen import coroutine
-from conf.settings import log
+from conf.settings import log, IMAGE_DOMAIN, IMG_CACHE_URL
 from base import AuthHandler
 from util.helper import error, ErrorCode, mongo_uid, gen_orderno
 
@@ -23,6 +23,9 @@ class DetailHandler(AuthHandler):
         try:
             recom_item = yield self.db['youcai'].recom_item.find_one({'id': recom_item_id}, {'_id': 0})
             if recom_item:
+                if IMG_CACHE_URL:
+                    recom_item['imgs'] = [IMG_CACHE_URL + x[len(IMAGE_DOMAIN)] if x.startwith(IMAGE_DOMAIN) else x for x in recom_item['imgs']]
+
                 return self.write(recom_item)
             else:
                 return self.write(error(ErrorCode.NODATA))
