@@ -1,22 +1,18 @@
 # -*- coding: utf-8 -*-
 import os
-import time
 import motor
-import json
 import tornado.escape
 import tornado.ioloop
 import tornado.options
 from tornado.gen import coroutine
 from tornado.options import options
-from tornado.web import authenticated, Application
+from tornado.web import Application
 from conf.settings import CACHE_SERVER, log, MONGO_STORE, MONGO_HAMLET, MONGO_YOUCAI, ROOT_PATH, SESSION_SECRET, \
     SESSION_SERVER, SESSION_TIMEOUT
 from util.cache import Cache
-from util.helper import check_password
 from util.session import SessionManager
 from api import *
 from base import AuthHandler, BaseHandler
-from util.helper import error, ErrorCode
 
 tornado.options.define('port', default=8000, help='run on the given port', type=int)
 tornado.options.define('debug', default=False, help='debug mode', type=bool)
@@ -27,26 +23,6 @@ class IndexHandler(AuthHandler):
     def get(self):
         self.xsrf_token
         self.render('index.html')
-
-
-class ProfileHandler(AuthHandler):
-    @coroutine
-    @authenticated
-    def get(self):
-        op = self.session['op']
-
-        firm_name = {'name': 'ALL'}
-        zone_name = {'name': 'ALL'}
-
-        self.render('profile.html', op=op, firm_name=firm_name['name'], zone_name=zone_name['name'], title='个人信息')
-
-
-class HelpHandler(AuthHandler):
-    @authenticated
-    def get(self):
-        op = self.session['op']
-        self.render('help.html', op=op, title='帮助')
-
 
 class YoucaiWeb(Application):
     def __init__(self):

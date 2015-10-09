@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import re
-import json
-import time
 from tornado.gen import coroutine
 from conf.settings import log
 from base import AuthHandler
