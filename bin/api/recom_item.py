@@ -24,7 +24,8 @@ class DetailHandler(AuthHandler):
             recom_item = yield self.db['youcai'].recom_item.find_one({'id': recom_item_id}, {'_id': 0})
             if recom_item:
                 if IMG_CACHE_URL:
-                    recom_item['imgs'] = map(lambda x: IMG_CACHE_URL + x[len(IMAGE_DOMAIN):] if x.startwith(IMAGE_DOMAIN) else x, recom_item['imgs'])
+                    qiniu_imgs = map(lambda x: IMG_CACHE_URL + x[len(IMAGE_DOMAIN):] if x.startwith(IMAGE_DOMAIN) else x, recom_item['imgs'])
+                    recom_item['imgs'] = [x for x in qiniu_imgs]
 
                 return self.write(recom_item)
             else:
