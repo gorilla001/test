@@ -25,10 +25,13 @@ class HomeHandler(AuthHandler):
         try:
             recom_items = yield self.db['youcai'].recom_item.find({}, {'_id': 0}).sort([('id', -1)]).skip(
                 (page - 1) * length).limit(length).to_list(length)
+            res = {
+                    'recom_item_list': []
+                }
             if recom_items:
-                return self.write(recom_items)
-            else:
-                return self.write([])
+                res.update({'recom_item_list': recom_items})
+
+            return self.write(res)
         except Exception as e:
             log.error(e)
             self.write(error(ErrorCode.DBERR))
