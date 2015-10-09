@@ -31,8 +31,7 @@ class HomeHandler(AuthHandler):
             if recom_items:
                 if IMG_CACHE_URL:
                     for recom_item in recom_items:
-                        qiniu_imgs = map(lambda x: IMG_CACHE_URL + x[len(IMAGE_DOMAIN):] if x.startswith(IMAGE_DOMAIN) else x, recom_item['imgs'])
-                        recom_item['imgs'] = [x for x in qiniu_imgs]
+                        recom_item['imgs'] = list(map(lambda x: IMG_CACHE_URL + x[len(IMAGE_DOMAIN):] if x.startswith(IMAGE_DOMAIN) else x, recom_item['imgs']))
 
                 res.update({'recom_item_list': recom_items})
 
