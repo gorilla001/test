@@ -33,4 +33,9 @@ YC_USER_DOWNLOAD_URL = '/api/static_file'
 
 CPU_COUNT = cpu_count()
 
+SMS_SERVER = {
+    'hosts': [{'addr': ('192.168.1.100', 5200), 'timeout': 2000}, {'addr': ('192.168.1.100', 5201), 'timeout': 2000}],
+    'thrift': os.path.join(ROOT_PATH, 'conf', 'smserver.thrift'),
+}
+
 GRAVATAR_URL = 'https://secure.gravatar.com/avatar/{hash}?s=160&d=identicon'

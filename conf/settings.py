@@ -34,4 +34,9 @@ YC_USER_DOWNLOAD_URL = 'https://img.shequcun.com/export'
 
 CPU_COUNT = cpu_count()
 
+SMS_SERVER = {
+    'hosts': [{'addr': ('127.0.0.1', 5200), 'timeout': 2000}, {'addr': ('127.0.0.1', 5201), 'timeout': 2000}],
+    'thrift': os.path.join(ROOT_PATH, 'conf', 'smserver.thrift'),
+}
+
 GRAVATAR_URL = 'https://secure.gravatar.com/avatar/{hash}?s=160&d=identicon'

@@ -5,9 +5,10 @@ from functools import partial, wraps
 from tornado.ioloop import IOLoop
 from tornado.options import options
 from tornado.web import asynchronous, RequestHandler
-from conf.settings import log, CPU_COUNT
+from conf.settings import log, CPU_COUNT, SMS_SERVER
 from util.helper import json_dumps
 from util.session import Session
+from util.thriftclient import ThriftClient
 
 EXECUTOR = ThreadPoolExecutor(max_workers=CPU_COUNT)
 
@@ -35,6 +36,7 @@ class BaseHandler(RequestHandler):
 
         super(BaseHandler, self).__init__(application, request, **kwargs)
         self.db = self.settings['db']
+        self.sms = lambda mobile, content, sender='ZSTORE', client=ThriftClient(SMS_SERVER['thrift'], SMS_SERVER['hosts']): client.call('sendsms', sender, [mobile] if isinstance(mobile, str) else mobile, content)
 
     def write(self, chunk):
         if isinstance(chunk, (dict, list, tuple)):
