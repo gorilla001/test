@@ -15,7 +15,10 @@ class ListHandler(AuthHandler):
             return
 
         try:
-            address_list = yield self.db['hamlet'].address.find({'uid': self.userid}, {'_id': 0, 'id':1, 'default': 1, 'name': 1, 'mobile': 1, 'city': 1, 'region': 1, 'zname': 1, 'bur': 1, 'room': 1}).sort([('default', -1), ('id', 1)]).limit(10).to_list(10)
+            address_list = yield self.db['hamlet'].address.find({'uid': self.userid},
+                                                                {'_id': 0, 'default': 1, 'name': 1, 'mobile': 1,
+                                                                 'city': 1, 'region': 1, 'address': 1}).sort(
+                [('default', -1), ('id', 1)]).limit(10).to_list(10)
             self.write(address_list)
         except Exception as e:
             log.error(e)
@@ -34,16 +37,15 @@ class SaveHandler(AuthHandler):
         now = round(time.time()) * 1000
         try:
             address_id = int(self.get_argument('id', None) or 0)
+            city = self.get_argument('city')
+            region = self.get_argument('region')
+            address = self.get_argument('address')
             address_doc = {
                 'name': self.get_argument('name'),
                 'mobile': self.get_argument('mobile'),
-                'city': self.get_argument('city'),
-                'region': self.get_argument('region'),
-                'street': self.get_argument('street', ''),
-                'zname': self.get_argument('zname'),
-                'building': self.get_argument('building'),
-                'unit': self.get_argument('unit', ''),
-                'room': self.get_argument('room'),
+                'city': city,
+                'region': region,
+                'address': address,
                 'modified': now
             }
         except Exception as e:
@@ -57,9 +59,18 @@ class SaveHandler(AuthHandler):
             else:               # 添加
                 address_doc.update({'id': mongo_uid('hanlet', 'address'),
                                     'uid': self.userid,
-                                    'created': now,
-                                    'zid': 0})      # TODO
+                                    'street': '',
+                                    'zid': 0,
+                                    'zname': '',
+                                    'building':  '',
+                                    'unit': '',
+                                    'room': '',
+                                    'bur': '',
+                                    'default': True,
+                                    'created': now})
+            return self.write({
+                'address': city + region + address
+            })
         except Exception as e:
             log.error(e)
-            self.write(error(ErrorCode.DBERR))
-            return
+            return self.write(error(ErrorCode.DBERR))
