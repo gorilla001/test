@@ -26,8 +26,8 @@ SESSION_TIMEOUT = 7200
 
 WXPAY_CONF = {
     'youcai': {
-        'appid': 'wxedddf5c468bfd955',
-        'secret': 'ea6ca4bab29d7243bfa97a7f46a930a7',
+        'appid': 'wx7614397bfac00107',
+        'secret': 'fddc0cbd357acc9536df19aaa389ab82',
         'key': 'b631c82cf1a741d68dc9c5cb2b715b98',
         'mchid': '1269547101',
         'url': 'https://api.mch.weixin.qq.com',
