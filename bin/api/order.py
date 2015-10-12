@@ -381,13 +381,13 @@ class OrderHandler(AuthHandler):
                     'mch_id': YOUCAI_WXPAY_CONF['mchid'],
                     'nonce_str': uuid.uuid4().hex,
                     'body': title,
-                    'detail': '有菜订单',
+                    'detail': '公众号扫码订单',
                     'attach': coupon_id if coupon_id else '',
                     'out_trade_no': order_no,
                     'total_fee': fee,
                     'spbill_create_ip': self.request.remote_ip,
                     'notify_url': YOUCAI_WXPAY_CONF['notify'],
-                    'trade_type': 'APP'
+                    'trade_type': 'JSAPI'
                 }
                 params.update({'sign': wxpay_sign(params)})
                 try:
@@ -399,15 +399,13 @@ class OrderHandler(AuthHandler):
                         sign = ret.pop('sign')
                         if sign == wxpay_sign(ret):
                             pay_params = {
-                                'appid': YOUCAI_WXPAY_CONF['appid'],
-                                'partnerid': YOUCAI_WXPAY_CONF['mchid'],
-                                'prepayid': ret['prepay_id'],
-                                'package': 'Sign=WXPay',
-                                'noncestr': uuid.uuid4().hex,
-                                'timestamp': round(time.time())
+                                'appId': YOUCAI_WXPAY_CONF['appid'],
+                                'timeStamp': round(time.time()),
+                                'nonceStr': uuid.uuid4().hex,
+                                'package': 'prepay_id={prepay_id}'.format(prepay_id=ret['prepay_id']),
+                                'signType': 'MD5',
+                                'paySign': sign,
                             }
-                            pay_params.update({'sign': wxpay_sign(pay_params)})
-                            pay_params.pop('appid')
                             result.update({'wxpay': pay_params})
                 except Exception as e:
                     log.error(e)
