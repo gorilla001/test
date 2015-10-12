@@ -5,10 +5,10 @@ import xmltodict
 import time
 from operator import itemgetter
 from conf.settings import log, WXPAY_CONF
-from tornado.httpclient import AsyncHTTPClient
-
+from tornado.httpclient import HTTPClient
 
 YOUCAI_WXPAY_CONF = WXPAY_CONF['youcai']
+
 
 def wxpay_sign(params):
     query = []
@@ -27,7 +27,7 @@ def make_order(title, order_no, fee, remote_ip):
         'nonce_str': uuid.uuid4().hex,
         'body': title,
         'detail': '公众号扫码订单',
-        'attach':  '',
+        'attach': '',
         'out_trade_no': order_no,
         'total_fee': fee,
         'spbill_create_ip': remote_ip,
@@ -37,9 +37,10 @@ def make_order(title, order_no, fee, remote_ip):
     params.update({'sign': wxpay_sign(params)})
     try:
         xml = xmltodict.unparse({'xml': params}, full_document=False)
-        resp = yield AsyncHTTPClient().fetch(YOUCAI_WXPAY_CONF['url'] + '/pay/unifiedorder', method='POST',
-                                             body=xml)
+        resp = HTTPClient().fetch(YOUCAI_WXPAY_CONF['url'] + '/pay/unifiedorder', method='POST',
+                                  body=xml)
         ret = xmltodict.parse(resp.body.decode())['xml']
+        pay_params = {}
         if ret['return_code'] == 'SUCCESS' and ret['result_code'] == 'SUCCESS':
             sign = ret.pop('sign')
             if sign == wxpay_sign(ret):
@@ -51,8 +52,9 @@ def make_order(title, order_no, fee, remote_ip):
                     'signType': 'MD5',
                     'paySign': sign,
                 }
+        else:
+            log.error(ret)
 
-                # result.update({'wxpay': pay_params})
-                return pay_params
+        return pay_params
     except Exception as e:
         log.error(e)

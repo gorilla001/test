@@ -13,6 +13,7 @@ from util.cache import Cache
 from util.session import SessionManager
 from api import *
 from base import AuthHandler, BaseHandler
+from util.test import make_order
 
 tornado.options.define('port', default=8000, help='run on the given port', type=int)
 tornado.options.define('debug', default=False, help='debug mode', type=bool)
@@ -24,10 +25,22 @@ class IndexHandler(AuthHandler):
         self.xsrf_token
         self.render('index.html')
 
+
+class PayWeixinTestHandler(AuthHandler):
+    # @coroutine
+    def get(self):
+        self.xsrf_token
+        # 支付参数
+        params = make_order("测试支付", 123456789, 0.01, '123.57.252.175')
+        log.error(params)
+        self.render('pay_weixin_test.html', params=params)
+
+
 class YoucaiWeb(Application):
     def __init__(self):
         handlers = [
             (r'/', IndexHandler),  # 首页
+            (r'/pay/weixn_test', PayWeixinTestHandler),  # 微信支付测试页
             (r'/api/address/list', address.ListHandler),
             (r'/api/address/save', address.SaveHandler),
             (r'/api/recom_item/detail', recom_item.DetailHandler),
