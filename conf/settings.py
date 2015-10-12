@@ -7,9 +7,9 @@ ROOT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEPLOY_PATH = os.path.dirname(ROOT_PATH)
 PROCESS_SN = os.path.basename(ROOT_PATH)
 log = initlog({
-    'INFO': '%s/log/estate-portal-%s.info.log' % (DEPLOY_PATH, PROCESS_SN),
-    'NOTE': '%s/log/estate-portal-%s.note.log' % (DEPLOY_PATH, PROCESS_SN),
-    'ERROR': '%s/log/estate-portal-%s.error.log' % (DEPLOY_PATH, PROCESS_SN)
+    'INFO': '%s/log/youcai-web-%s.info.log' % (DEPLOY_PATH, PROCESS_SN),
+    'NOTE': '%s/log/youcai-web-%s.note.log' % (DEPLOY_PATH, PROCESS_SN),
+    'ERROR': '%s/log/youcai-web-%s.error.log' % (DEPLOY_PATH, PROCESS_SN)
 }, mode='timed', backup_count=15)
 
 CACHE_SERVER = {'host': '127.0.0.1', 'port': 9736, 'db': 1, 'password': 'h4M1eT#S0z'}

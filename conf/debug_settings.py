@@ -5,10 +5,10 @@ from util.logger import initlog
 
 ROOT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 log = initlog({
-    'INFO': '%s/log/estate-portal.info.log' % ROOT_PATH,
-    'NOTE': '%s/log/estate-portal.note.log' % ROOT_PATH,
-    'WARN': '%s/log/estate-portal.warn.log' % ROOT_PATH,
-    'ERROR': '%s/log/estate-portal.error.log' % ROOT_PATH
+    'INFO': '%s/log/youcai-web.info.log' % ROOT_PATH,
+    'NOTE': '%s/log/youcai-web.note.log' % ROOT_PATH,
+    'WARN': '%s/log/youcai-web.warn.log' % ROOT_PATH,
+    'ERROR': '%s/log/youcai-web.error.log' % ROOT_PATH
 }, True, mode='timed', backup_count=15)
 
 CACHE_SERVER = {'host': '192.168.1.100', 'port': 6379, 'db': 1, 'password': 'redis%sqc'}
