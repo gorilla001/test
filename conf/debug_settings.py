@@ -34,6 +34,12 @@ WXPAY_CONF = {
     }
 }
 
+WX_CONF = {
+    'appid': 'wx7da6f4663012671b',
+    'secret': '65595d1951ccb0bc8b8ed8326b1cdbeb',
+    'token': 'a87d23884f6b46039b392e6a92168660'
+}
+
 IMAGE_DEFAULT = 'https://img.shequcun.com/zone.jpg'
 IMAGE_DOMAIN = '/static/upload'
 UPLOAD_PATH = os.path.join(ROOT_PATH, 'static', 'upload')

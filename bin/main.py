@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import json
 import motor
 import urllib.parse
 import tornado.escape
@@ -8,9 +9,11 @@ import tornado.options
 from tornado.gen import coroutine
 from tornado.options import options
 from tornado.web import Application
+from tornado.httpclient import AsyncHTTPClient
 from conf.settings import CACHE_SERVER, log, MONGO_STORE, MONGO_HAMLET, MONGO_YOUCAI, ROOT_PATH, SESSION_SECRET, \
-    SESSION_SERVER, SESSION_TIMEOUT, WXPAY_CONF
+    SESSION_SERVER, SESSION_TIMEOUT, WXPAY_CONF, WX_CONF
 from util.cache import Cache
+from util.helper import error, ErrorCode
 from util.session import SessionManager
 from api import *
 from base import AuthHandler, BaseHandler
@@ -26,8 +29,31 @@ class IndexHandler(AuthHandler):
     @coroutine
     def get(self):
         self.xsrf_token
-        
+        # openid = self.get_openid(code)
         self.render('index.html')
+
+    def get_openid(self, code):
+        if not code:
+            return self.write(error(ErrorCode.PARAMERR, '需要code参数'))
+
+        client = AsyncHTTPClient()
+        query = {
+            'appid': WX_CONF['appid'],
+            'secret': WX_CONF['secret'],
+            'code': code,
+            'grant_type': 'authorization_code'
+        }
+        try:
+            response = yield client.fetch('https://api.weixin.qq.com/sns/oauth2/access_token?' + urllib.parse.urlencode(query))
+            result = json.loads(response.body.decode())
+            if 'errmsg' in result:
+                log.error(result)
+                return self.write(error(ErrorCode.THIRDERR, result['errmsg']))
+
+            return self.write({'openid': result})
+        except Exception as e:
+            log.error(e)
+            return self.write(error(ErrorCode.REQERR, '请求openid出错'))
 
 
 # 微信入口
