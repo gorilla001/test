@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 
 import re
-import rsa
 import time
-import base64
+import uuid
+import xmltodict
 import datetime
+import hashlib
+from operator import itemgetter
 from tornado.gen import coroutine
-from conf.settings import log
+from tornado.httpclient import AsyncHTTPClient
+from conf.settings import log, WXPAY_CONF
 from base import AuthHandler
 from util.helper import error, ErrorCode, mongo_uid, gen_orderno
 
 _DATABASE = 'youcai'
-# YOUCAI_WXPAY_CONF = WXPAY_CONF['youcai']
-# PRI_KEY = rsa.PrivateKey.load_pkcs1(base64.decodebytes(ALIPAY_CONF['private_key']), 'DER')
+YOUCAI_WXPAY_CONF = WXPAY_CONF['youcai']
 
 _ORDER_TYPE = {
     1: "套餐订单",
@@ -26,6 +28,14 @@ _COUPON_TYPE = {
     2: "单品优惠券",
 }
 
+def wxpay_sign(params):
+    query = []
+    for param in sorted(params.items(), key=itemgetter(0)):
+        if param[1]:
+            query.append('%s=%s' % (param[0], param[1]))
+
+    query.append('key=' + YOUCAI_WXPAY_CONF['key'])
+    return hashlib.md5('&'.join(query).encode()).hexdigest().upper()
 
 class ItemNotFoundError(Exception):
     def __init__(self, item):
@@ -365,42 +375,42 @@ class OrderHandler(AuthHandler):
             #     sign = base64.encodebytes(rsa.sign(alipay_info.encode(), PRI_KEY, 'SHA-1')).decode().replace('\n', '')
             #     alipay = alipay_info + ('&sign="%s"&sign_type="RSA"' % urllib.parse.quote_plus(sign))
             #     result.update({'alipay': alipay})
-            # elif paytype == 3:  # 微信支付
-            #     params = {
-            #         'appid': YOUCAI_WXPAY_CONF['appid'],
-            #         'mch_id': YOUCAI_WXPAY_CONF['mchid'],
-            #         'nonce_str': uuid.uuid4().hex,
-            #         'body': title,
-            #         'detail': '有菜订单',
-            #         'attach': coupon_id if coupon_id else '',
-            #         'out_trade_no': order_no,
-            #         'total_fee': fee,
-            #         'spbill_create_ip': self.request.remote_ip,
-            #         'notify_url': YOUCAI_WXPAY_CONF['notify'],
-            #         'trade_type': 'APP'
-            #     }
-            #     params.update({'sign': wxpay_sign(params)})
-            #     try:
-            #         xml = xmltodict.unparse({'xml': params}, full_document=False)
-            #         resp = yield AsyncHTTPClient().fetch(YOUCAI_WXPAY_CONF['url'] + '/pay/unifiedorder', method='POST',
-            #                                              body=xml)
-            #         ret = xmltodict.parse(resp.body.decode())['xml']
-            #         if ret['return_code'] == 'SUCCESS' and ret['result_code'] == 'SUCCESS':
-            #             sign = ret.pop('sign')
-            #             if sign == wxpay_sign(ret):
-            #                 pay_params = {
-            #                     'appid': YOUCAI_WXPAY_CONF['appid'],
-            #                     'partnerid': YOUCAI_WXPAY_CONF['mchid'],
-            #                     'prepayid': ret['prepay_id'],
-            #                     'package': 'Sign=WXPay',
-            #                     'noncestr': uuid.uuid4().hex,
-            #                     'timestamp': round(time.time())
-            #                 }
-            #                 pay_params.update({'sign': wxpay_sign(pay_params)})
-            #                 pay_params.pop('appid')
-            #                 result.update({'wxpay': pay_params})
-            #     except Exception as e:
-            #         log.error(e)
+            if paytype == 3:  # 微信支付
+                params = {
+                    'appid': YOUCAI_WXPAY_CONF['appid'],
+                    'mch_id': YOUCAI_WXPAY_CONF['mchid'],
+                    'nonce_str': uuid.uuid4().hex,
+                    'body': title,
+                    'detail': '有菜订单',
+                    'attach': coupon_id if coupon_id else '',
+                    'out_trade_no': order_no,
+                    'total_fee': fee,
+                    'spbill_create_ip': self.request.remote_ip,
+                    'notify_url': YOUCAI_WXPAY_CONF['notify'],
+                    'trade_type': 'APP'
+                }
+                params.update({'sign': wxpay_sign(params)})
+                try:
+                    xml = xmltodict.unparse({'xml': params}, full_document=False)
+                    resp = yield AsyncHTTPClient().fetch(YOUCAI_WXPAY_CONF['url'] + '/pay/unifiedorder', method='POST',
+                                                         body=xml)
+                    ret = xmltodict.parse(resp.body.decode())['xml']
+                    if ret['return_code'] == 'SUCCESS' and ret['result_code'] == 'SUCCESS':
+                        sign = ret.pop('sign')
+                        if sign == wxpay_sign(ret):
+                            pay_params = {
+                                'appid': YOUCAI_WXPAY_CONF['appid'],
+                                'partnerid': YOUCAI_WXPAY_CONF['mchid'],
+                                'prepayid': ret['prepay_id'],
+                                'package': 'Sign=WXPay',
+                                'noncestr': uuid.uuid4().hex,
+                                'timestamp': round(time.time())
+                            }
+                            pay_params.update({'sign': wxpay_sign(pay_params)})
+                            pay_params.pop('appid')
+                            result.update({'wxpay': pay_params})
+                except Exception as e:
+                    log.error(e)
 
         return self.write(result)
 

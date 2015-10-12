@@ -24,6 +24,17 @@ BASE62_NUMERALS = 'wGnSbEdvzL6K7JkVUOj1RDFhYm0IxNu2Hp94gtAo8X3yqlBcMZaCQesrWfTiP
 SESSION_SECRET = 'L97GIeMeRDOknl36WjbRnM2LQwsg5UNsqNUBCERvDJs='
 SESSION_TIMEOUT = 7200
 
+WXPAY_CONF = {
+    'youcai': {
+        'appid': 'wxedddf5c468bfd955',
+        'secret': 'ea6ca4bab29d7243bfa97a7f46a930a7',
+        'key': 'b631c82cf1a741d68dc9c5cb2b715b98',
+        'mchid': '1269547101',
+        'url': 'https://api.mch.weixin.qq.com',
+        'notify': 'https://api.shequcun.com/wxpay/notify'
+    }
+}
+
 IMAGE_DEFAULT = 'https://img.shequcun.com/zone.jpg'
 IMAGE_DOMAIN = 'https://img.shequcun.com'
 UPLOAD_PATH = '/home/hamlet/shequcun/upload'
