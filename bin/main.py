@@ -29,7 +29,7 @@ class IndexHandler(AuthHandler):
     @coroutine
     def get(self):
         self.xsrf_token
-        log.info('================request index===========')
+        log.error('================request index===========')
 
         self.get_openid(self.get_argument('code', None) or '')
         self.render('index.html')
@@ -46,13 +46,13 @@ class IndexHandler(AuthHandler):
             'grant_type': 'authorization_code'
         }
         try:
-            log.info('================request openid===========')
+            log.error('================request openid===========')
             response = yield client.fetch(
                 'https://api.weixin.qq.com/sns/oauth2/access_token?' + urllib.parse.urlencode(query))
             text = response.body.decode()
-            log.info(text)
+            log.error(text)
             result = json.loads(text)
-            log.info(result)
+            log.error(result)
             if 'errmsg' in result:
                 log.error(result)
                 return self.write(error(ErrorCode.THIRDERR, result['errmsg']))
