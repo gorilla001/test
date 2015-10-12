@@ -26,12 +26,21 @@ class IndexHandler(AuthHandler):
         self.render('index.html')
 
 
+class PayWeixinHandler(AuthHandler):
+    # @coroutine
+    def get(self):
+        # 支付参数
+        params = make_order("测试支付", 123456789, 1, self.request.remote_ip)
+        log.error(params)
+        self.render('pay_weixin.html', params=params)
+
+
 class PayWeixinTestHandler(AuthHandler):
     # @coroutine
     def get(self):
         self.xsrf_token
         # 支付参数
-        params = make_order("测试支付", 123456789, 0.01, '123.57.252.175')
+        params = make_order("测试支付", 123456789, 1, self.request.remote_ip)
         log.error(params)
         self.render('pay_weixin_test.html', params=params)
 
