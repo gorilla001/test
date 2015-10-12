@@ -76,7 +76,7 @@ class PayWeixinHandler(AuthHandler):
     # @coroutine
     def get(self):
         # 支付参数
-        params = make_order("测试支付", 123456789, 1, self.request.remote_ip)
+        params = make_order(self, "测试支付", 123456789, 1, self.request.remote_ip)
         log.error(params)
         self.render('pay_weixin.html', params=params)
 

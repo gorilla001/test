@@ -20,7 +20,7 @@ def wxpay_sign(params):
     return hashlib.md5('&'.join(query).encode()).hexdigest().upper()
 
 
-def make_order(title, order_no, fee, remote_ip):
+def make_order(requesthandler, title, order_no, fee, remote_ip):
     params = {
         'appid': YOUCAI_WXPAY_CONF['appid'],
         'mch_id': YOUCAI_WXPAY_CONF['mchid'],
@@ -32,7 +32,8 @@ def make_order(title, order_no, fee, remote_ip):
         'total_fee': fee,
         'spbill_create_ip': remote_ip,
         'notify_url': YOUCAI_WXPAY_CONF['notify'],
-        'trade_type': 'JSAPI'
+        'trade_type': 'JSAPI',
+        'openid': requesthandler.session.get('openid')
     }
     params.update({'sign': wxpay_sign(params)})
     try:
@@ -50,7 +51,7 @@ def make_order(title, order_no, fee, remote_ip):
                     'nonceStr': uuid.uuid4().hex,
                     'package': 'prepay_id={prepay_id}'.format(prepay_id=ret['prepay_id']),
                     'signType': 'MD5',
-                    'paySign': sign,
+                    'paySign': sign
                 }
         else:
             log.error(ret)
