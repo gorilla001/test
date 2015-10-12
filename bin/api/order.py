@@ -11,8 +11,8 @@ from base import AuthHandler
 from util.helper import error, ErrorCode, mongo_uid, gen_orderno
 
 _DATABASE = 'youcai'
-YOUCAI_WXPAY_CONF = WXPAY_CONF['youcai']
-PRI_KEY = rsa.PrivateKey.load_pkcs1(base64.decodebytes(ALIPAY_CONF['private_key']), 'DER')
+# YOUCAI_WXPAY_CONF = WXPAY_CONF['youcai']
+# PRI_KEY = rsa.PrivateKey.load_pkcs1(base64.decodebytes(ALIPAY_CONF['private_key']), 'DER')
 
 _ORDER_TYPE = {
     1: "套餐订单",
@@ -42,9 +42,9 @@ class OrderHandler(AuthHandler):
             return self.write(error(ErrorCode.LOGINERR))
 
         try:
-            combo_id = int(self.get_argument('combo_id', 0))  # 套餐订单，选菜订单必传，套餐订单不传items和extras
+            combo_id = int(self.get_argument('combo_id', None) or 0)  # 套餐订单，选菜订单必传，套餐订单不传items和extras
             order_type = int(self.get_argument('type'))  # 订单类型
-            combo_idx = int(self.get_argument('combo_idx', 0))  # 子订单序号
+            combo_idx = int(self.get_argument('combo_idx', None) or 0)  # 子订单序号
             raw_items = self.get_argument('items', None)  # 选菜订单必传，格式：id1:amount1,id2:amount2...
             raw_extras = self.get_argument('extras', None)  # 选菜订单可选，单品订单必传，格式：id1:amount1,id2:amount2...
             spares = self.get_argument('spares', None)  # 备选菜,格式：id1, id2, id3...

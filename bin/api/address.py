@@ -16,7 +16,7 @@ class ListHandler(AuthHandler):
 
         try:
             address_list = yield self.db['hamlet'].address.find({'uid': self.userid},
-                                                                {'_id': 0, 'default': 1, 'name': 1, 'mobile': 1,
+                                                                {'_id': 0, 'id': 1, 'default': 1, 'name': 1, 'mobile': 1,
                                                                  'city': 1, 'region': 1, 'address': 1}).sort(
                 [('default', -1), ('id', 1)]).limit(10).to_list(10)
             self.write(address_list)
@@ -48,6 +48,7 @@ class SaveHandler(AuthHandler):
                 'address': address,
                 'modified': now
             }
+            log.error(address_doc)
         except Exception as e:
             log.error(e)
             self.write(error(ErrorCode.PARAMERR))
@@ -57,7 +58,7 @@ class SaveHandler(AuthHandler):
             if address_id:      # 修改
                 yield self.db['hamlet'].address.find_and_modify({'id': address_id}, {'$set': address_doc})
             else:               # 添加
-                address_doc.update({'id': mongo_uid('hanlet', 'address'),
+                address_doc.update({'id': mongo_uid('hamlet', 'address'),
                                     'uid': self.userid,
                                     'street': '',
                                     'zid': 0,
