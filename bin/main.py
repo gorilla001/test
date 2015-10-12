@@ -47,12 +47,13 @@ class IndexHandler(AuthHandler):
         try:
             response = yield client.fetch(
                 'https://api.weixin.qq.com/sns/oauth2/access_token?' + urllib.parse.urlencode(query))
-            result = json.loads(response.body.decode())
+            text = response.body.decode()
+            log.info(text)
+            result = json.loads(text)
+            log.info(result)
             if 'errmsg' in result:
                 log.error(result)
                 return self.write(error(ErrorCode.THIRDERR, result['errmsg']))
-
-            log.info(result)
             self.session['openid'] = result['openid']
             self.session.save()
             # return self.write({'openid': result})
