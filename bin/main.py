@@ -52,8 +52,7 @@ class IndexHandler(AuthHandler):
                 log.error(result)
                 return self.write(error(ErrorCode.THIRDERR, result['errmsg']))
 
-            # self.session.save({'openid':result})
-            self.session['openid'].update(result)
+            self.session['openid'] = result
             self.session.save()
             # return self.write({'openid': result})
         except Exception as e:
