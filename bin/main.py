@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import motor
+import urllib.parse
 import tornado.escape
 import tornado.ioloop
 import tornado.options
@@ -8,7 +9,7 @@ from tornado.gen import coroutine
 from tornado.options import options
 from tornado.web import Application
 from conf.settings import CACHE_SERVER, log, MONGO_STORE, MONGO_HAMLET, MONGO_YOUCAI, ROOT_PATH, SESSION_SECRET, \
-    SESSION_SERVER, SESSION_TIMEOUT
+    SESSION_SERVER, SESSION_TIMEOUT, WXPAY_CONF
 from util.cache import Cache
 from util.session import SessionManager
 from api import *
@@ -18,12 +19,26 @@ from util.test import make_order
 tornado.options.define('port', default=8000, help='run on the given port', type=int)
 tornado.options.define('debug', default=False, help='debug mode', type=bool)
 
+YOUCAI_WXPAY_CONF = WXPAY_CONF['youcai']
+
 
 class IndexHandler(AuthHandler):
     @coroutine
     def get(self):
         self.xsrf_token
+        
         self.render('index.html')
+
+
+# 微信入口
+class WxHandler(AuthHandler):
+    def get(self):
+        redirect_uri = urllib.parse.quote(self.request.protocol + '://' + self.request.host)
+        # url = urllib.parse.quote('https://youcai.shequcun.com')
+        url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + YOUCAI_WXPAY_CONF['appid'] + \
+              '&redirect_uri=' + redirect_uri \
+              + '&response_type=code&scope=snsapi_base&state=STATE&connect_redirect=1#wechat_redirect'
+        self.redirect(url)
 
 
 class PayWeixinHandler(AuthHandler):
@@ -49,6 +64,7 @@ class YoucaiWeb(Application):
     def __init__(self):
         handlers = [
             (r'/', IndexHandler),  # 首页
+            (r'/wx', WxHandler),  # 微信授权页面
             # (r'/pay/weixn_test', PayWeixinTestHandler),  # 微信支付测试页
             (r'/pay_test', PayWeixinTestHandler),  # 微信支付测试页
             (r'/api/address/list', address.ListHandler),
