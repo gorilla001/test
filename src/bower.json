@@ -1,0 +1,27 @@
+{
+  "name": "youcai-sap",
+  "version": "0.0.0",
+  "authors": [
+    "aidenZou <aidenzou@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "vue-resource": "~0.1.16",
+    "vue-router": "~0.6.1",
+    "store2": "store#~2.3.0",
+    "vue": "~0.12.16",
+    "vue-touch": "~0.1.1",
+    "zepto": "~1.1.6"
+  }
+}

@@ -1,0 +1,111 @@
+@charset "UTF-8";
+//px 2 rem
+@function px2rem($n) {
+  //10rem = 320px
+  @return $n / 32 / 2 + rem;
+}
+
+* {
+  /* 防止点击闪烁 */
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+  -webkit-touch-callout: none;
+
+  /* 缩放网页，文字大小不变 */
+  -webkit-text-size-adjust: none;
+}
+
+*, :before, :after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+  width: 100%;
+  //min-height: 100vh;
+  min-height: 100%;
+  //background-color: #ffeb4c;
+}
+
+body, ul, li {
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+H1, h2, h3, h4 {
+  font-weight: normal
+}
+
+// 首行缩进
+//.aaaa {
+//  text-indent: 2em;
+//}
+
+//a.btn {
+a {
+  &:link, &:visited, &:hover, &:active {
+    text-decoration: none;
+    //color: white;
+    color: #000;
+  }
+}
+
+.btn {
+  display: inline-block;
+  background-color: white;
+  border: none;
+}
+
+.block {
+  padding: px2rem(26) px2rem(28);
+  //margin-top: px2rem(16);
+  margin-bottom: px2rem(16);
+  background-color: white;
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+/* 文字大小 */
+//大
+.f-z-lg {
+  font-size: px2rem(36);
+}
+
+//默认
+.f-z {
+  font-size: px2rem(28);
+}
+
+//小
+.f-z-sm {
+  font-size: px2rem(24);
+}
+
+.f-z-26 {
+  font-size: px2rem(26);
+}
+
+.f-z-24 {
+  font-size: px2rem(24);
+}
+
+//超小
+//.f-z-xs {
+//  font-size: 70%;
+//}
+
+//中划线
+.t-d-l-t {
+  text-decoration: line-through
+}
+
+//强制文本在一行内显示若有多余字符则使用省略号表示
+.one {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}

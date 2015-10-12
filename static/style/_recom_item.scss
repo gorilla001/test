@@ -1,0 +1,117 @@
+@charset "UTF-8";
+@import "../component/slide/style";
+
+#p-recom-item {
+  padding-bottom: $c-bottom-buy-height;
+  background-color: #ebeeed;
+
+  // 首页
+  #go-index {
+    position: fixed;
+    top: px2rem(30);
+    left: px2rem(30);
+    color: white;
+    z-index: 10;
+  }
+  .slide {
+    // 长宽比例 4:3
+    height: 10/4*3rem;
+  }
+
+  section {
+    padding: px2rem(30) px2rem(32);
+    background-color: #fff;
+    margin-bottom: px2rem(16);
+    position: relative;
+    h2 {
+      font-size: px2rem(32);
+      margin-bottom: px2rem(20);
+      color: #111;
+    }
+  }
+
+  .info {
+    font-size: px2rem(28);
+    color: #8e8e8e;
+
+    .price {
+      display: inline-block;
+      color: #32bd6f;
+    }
+    .price {
+      margin-right: px2rem(26);
+    }
+    .mprice {
+      display: inline-block;
+      //margin-left: px2rem(26);
+      margin-top: px2rem(14);
+    }
+    .sales {
+      display: inline-block;
+      //margin-left: px2rem(100);
+      margin-top: px2rem(14);
+      float: right;
+    }
+  }
+
+  .img1 img {
+    width: 100%;
+    height: px2rem(96);
+  }
+
+  .detail {
+    h2 {
+      text-align: center;
+    }
+  }
+
+  .detail-image {
+    width: 100%;
+    img {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  .download {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    .down {
+      display: block;
+      width: 100%;
+    }
+    .close {
+      width: 15px;
+      height: 15px;
+      position: absolute;
+      z-index: 99;
+      right: 0;
+      top: 0;
+    }
+
+  }
+
+  .a-right::after {
+    display: inline-block;
+    font: normal normal normal 1.6rem/1 FontAwesome, sans-serif;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transform: translate(0, 0);
+    //content: "\f054";
+    content: ">";
+    //content: "  ";
+    position: absolute;
+    right: px2rem(32);
+    color: #ccc;
+    top: 50%;
+    margin-top: px2rem(-16);
+    font-size: larger;
+
+    //background: no-repeat right center;
+    //background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D'0%200%2060%20120'%20x…9.25-28.5-29.25-28.5%209.75-9.75z'%20fill%3D'%23c7c7cc'%2F%3E%3C%2Fsvg%3E");
+  }
+}

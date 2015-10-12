@@ -29,30 +29,30 @@ class IndexHandler(AuthHandler):
     @coroutine
     def get(self):
         code = self.get_argument('code', None)
-        if not code:
+        if code:
             return self.write(error(ErrorCode.PARAMERR, '需要code参数'))
 
-        client = AsyncHTTPClient()
-        query = {
-            'appid': WX_CONF['appid'],
-            'secret': WX_CONF['secret'],
-            'code': code,
-            'grant_type': 'authorization_code'
-        }
-        try:
-            response = yield client.fetch(
-                'https://api.weixin.qq.com/sns/oauth2/access_token?' + urllib.parse.urlencode(query))
-            result = json.loads(response.body.decode())
-            log.info(result)
-            if 'errmsg' in result:
-                log.error(result)
-                return self.write(error(ErrorCode.THIRDERR, result['errmsg']))
+            client = AsyncHTTPClient()
+            query = {
+                'appid': WX_CONF['appid'],
+                'secret': WX_CONF['secret'],
+                'code': code,
+                'grant_type': 'authorization_code'
+            }
+            try:
+                response = yield client.fetch(
+                    'https://api.weixin.qq.com/sns/oauth2/access_token?' + urllib.parse.urlencode(query))
+                result = json.loads(response.body.decode())
+                log.info(result)
+                if 'errmsg' in result:
+                    log.error(result)
+                    return self.write(error(ErrorCode.THIRDERR, result['errmsg']))
 
-            self.session['openid'] = result['openid']
-            self.session.save()
-        except Exception as e:
-            log.error(e)
-            return self.write(error(ErrorCode.REQERR, '请求openid出错'))
+                self.session['openid'] = result['openid']
+                self.session.save()
+            except Exception as e:
+                log.error(e)
+                return self.write(error(ErrorCode.REQERR, '请求openid出错'))
 
         #self.get_openid(self.get_argument('code', None) or '')
         self.render('index.html')

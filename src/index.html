@@ -58,16 +58,16 @@
 
     <!--<link rel="stylesheet" type="text/css" href="style/index.css"/>-->
     <!--<link rel="stylesheet" type="text/css" href="style/detail.css"/>-->
-    <link rel="stylesheet" type="text/css" href="/static/style/app.css"/>
+    <link rel="stylesheet" type="text/css" href="static/style/app.css"/>
 
-    <script src="/static/bower_components/zepto/zepto.min.js"></script>
+    <script src="bower_components/zepto/zepto.min.js"></script>
     <!--<script src="bower_components/vue/dist/vue.js"></script>-->
-    <script src="/static/bower_components/vue/dist/vue.min.js"></script>
-    <script src="/static/bower_components/vue-router/dist/vue-router.min.js"></script>
-    <script src="/static/bower_components/vue-resource/dist/vue-resource.min.js"></script>
-    <script src="/static/bower_components/store2/dist/store2.min.js"></script>
+    <script src="bower_components/vue/dist/vue.min.js"></script>
+    <script src="bower_components/vue-router/dist/vue-router.min.js"></script>
+    <script src="bower_components/vue-resource/dist/vue-resource.min.js"></script>
+    <script src="bower_components/store2/dist/store2.min.js"></script>
 
-    <script type="text/javascript" src="/static/script/iscroll.js"></script>
+    <script type="text/javascript" src="static/script/iscroll.js"></script>
 
     <style>
         /*.v-link-active {*/
@@ -98,7 +98,7 @@
 <!-- component template -->
 
 <!--首页-->
-<script type="application/x-template" id="index-template">
+<script type="text/x-template" id="index-template">
     <div id="p-index">
         <h2>农庄优选</h2>
         <!--<div class="title">农庄优选</div>-->
@@ -140,7 +140,7 @@
 </script>
 
 <!--单品详情-->
-<script type="application/x-template" id="recom-item-template">
+<script type="text/x-template" id="recom-item-template">
     <div id="p-recom-item">
         <a id="go-index" v-link="{ path: '/index'}">首页</a>
 
@@ -188,7 +188,7 @@
 </script>
 
 <!--购买页-->
-<script type="application/x-template" id="buy-template">
+<script type="text/x-template" id="buy-template">
     <div id="p-buy">
         <section class="block address">
             <a class="row-1 btn" v-link="{ path: '/address'}">
@@ -242,7 +242,7 @@
 </script>
 
 <!--订单支付结果页-->
-<script type="application/x-template" id="pay-result-template">
+<script type="text/x-template" id="pay-result-template">
     <div id="p-pay-result">
         <div class="box">
             <div class="img">
@@ -258,7 +258,7 @@
 </script>
 
 <!--登录页-->
-<script type="application/x-template" id="login-template">
+<script type="text/x-template" id="login-template">
     <div id="p-login">
         <div>
             <div class="logo">
@@ -281,7 +281,7 @@
 </script>
 
 <!--我的地址列表-->
-<script type="application/x-template" id="address-template">
+<script type="text/x-template" id="address-template">
     <div id="p-address" class="f-z">
         <section class="block add">
             <a class="row btn" v-link="{ path: '/address/0'}">
@@ -307,7 +307,7 @@
 </script>
 
 <!--我的地址详情-->
-<script type="application/x-template" id="address-detail-template">
+<script type="text/x-template" id="address-detail-template">
     <div id="p-address-detail" class="f-z">
         <div class="head">联系人</div>
         <div class="row body">
@@ -363,7 +363,7 @@
 -->
 
 <!--输入-->
-<script type="application/x-template" id="input-template">
+<script type="text/x-template" id="input-template">
     <div id="p-input" class="f-z">
         <textarea class="f-z-sm" rows="7" v-attr="placeholder:placeholder"></textarea>
 
@@ -373,9 +373,9 @@
     </div>
 </script>
 
-<script type="text/javascript" src="/static/component/slide/swipeSlide.min.js"></script>
+<script type="text/javascript" src="static/component/slide/swipeSlide.min.js"></script>
 
-<script src="/static/app.js" type="text/javascript"></script>
+<script src="static/app.js" type="text/javascript"></script>
 
 </body>
 </html>
