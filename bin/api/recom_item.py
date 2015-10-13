@@ -3,7 +3,6 @@
 import io
 import base64
 import pyqrcode
-from conf.settings import RECOMITEM_BASE_URL
 from tornado.gen import coroutine
 from conf.settings import log, IMAGE_DOMAIN, IMG_CACHE_URL
 from base import AuthHandler
@@ -27,7 +26,7 @@ class DetailHandler(AuthHandler):
                     recom_item['imgs'] = list(map(lambda x: IMG_CACHE_URL + x[len(IMAGE_DOMAIN):] if x.startswith(IMAGE_DOMAIN) else x, recom_item['imgs']))
 
                 buffer = io.BytesIO()
-                url = pyqrcode.create(RECOMITEM_BASE_URL + str(recom_item_id))
+                url = pyqrcode.create(self.request.protocol + '://' + self.request.host + '/#!/recomitem/' + str(recom_item_id))
                 url.png(buffer, scale=5, quiet_zone=0)
                 qrcode = base64.encodebytes(buffer.getvalue()).decode().replace('\n', '')
 
