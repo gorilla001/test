@@ -50,6 +50,8 @@ IMG_CACHE_URL = 'http://7xjgn9.com2.z0.glb.qiniucdn.com'
 YC_USER_LIST_STORE_PATH = '/home/hamlet/shequcun/upload/export'
 YC_USER_DOWNLOAD_URL = 'https://img.shequcun.com/export'
 
+RECOMITEM_BASE_URL = 'https://m.youcai.xin/#!/recomitem/'
+
 CPU_COUNT = cpu_count()
 
 SMS_SERVER = {
