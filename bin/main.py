@@ -120,7 +120,7 @@ class PayWeixinTestHandler(AuthHandler):
             # 支付参数
             import random
 
-            params = make_order(self, "测试支付", random.randint(1000000000000, 9999999999999), 1, self.request.remote_ip)
+            params = make_order(self.session.get('openid'), "测试支付", random.randint(1000000000000, 9999999999999), 1, self.request.remote_ip)
             log.error(params)
             self.render('pay_weixin_test.html', params=params)
         except Exception as e:

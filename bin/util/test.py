@@ -21,6 +21,8 @@ def wxpay_sign(params):
 
 
 def make_order(openid, title, order_no, fee, remote_ip):
+    log.info('================openid===========')
+    log.info(openid)
     params = {
         'appid': YOUCAI_WXPAY_CONF['appid'],
         'mch_id': YOUCAI_WXPAY_CONF['mchid'],
