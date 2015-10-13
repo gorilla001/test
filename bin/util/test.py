@@ -20,9 +20,7 @@ def wxpay_sign(params):
     return hashlib.md5('&'.join(query).encode()).hexdigest().upper()
 
 
-def make_order(requesthandler, title, order_no, fee, remote_ip):
-    log.info('================self===========')
-    log.info(requesthandler.session.get('openid'))
+def make_order(openid, title, order_no, fee, remote_ip):
     params = {
         'appid': YOUCAI_WXPAY_CONF['appid'],
         'mch_id': YOUCAI_WXPAY_CONF['mchid'],
@@ -35,7 +33,7 @@ def make_order(requesthandler, title, order_no, fee, remote_ip):
         'spbill_create_ip': remote_ip,
         'notify_url': YOUCAI_WXPAY_CONF['notify'],
         'trade_type': 'JSAPI',
-        'openid': requesthandler.session.get('openid')
+        'openid': openid
     }
     params.update({'sign': wxpay_sign(params)})
     try:
