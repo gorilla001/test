@@ -93,7 +93,7 @@ class WxHandler(AuthHandler):
     def get(self):
         redirect_uri = urllib.parse.quote(self.request.protocol + '://' + self.request.host)
         # url = urllib.parse.quote('https://youcai.shequcun.com')
-        redirect_uri = 'https%3A%2F%2Fm.youcai.xin'
+        # redirect_uri = 'https%3A%2F%2Fm.youcai.xin'
         url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + YOUCAI_WXPAY_CONF['appid'] + \
               '&redirect_uri=' + redirect_uri \
               + '&response_type=code&scope=snsapi_base&state=STATE&connect_redirect=1#wechat_redirect'
