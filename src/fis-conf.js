@@ -3,7 +3,7 @@
  */
 
 // MD5
-fis.match('*.{js,css,png}', {
+fis.match('*.{js,css}', {
     useHash: true
 });
 
