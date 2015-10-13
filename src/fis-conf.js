@@ -2,6 +2,11 @@
  * Created by aidenZou on 15/9/19.
  */
 
+// MD5
+fis.match('*.{js,css,png}', {
+    useHash: true
+});
+
 fis.set('project.ignore', [
     //'output/**',
     'node_modules/**',
@@ -11,7 +16,7 @@ fis.set('project.ignore', [
     'fis-conf.js',
     'package.json',
     'bower.json',
-    //'bower_components'
+    'bower_components/**'
 ]);
 
 fis.match('bower.json', {
@@ -19,9 +24,9 @@ fis.match('bower.json', {
     release: false
 });
 
-// MD5
-fis.match('*.{js,css,png}', {
-    useHash: true
+fis.match('*.{scss,less,map}', {
+    // 设置 release 为 FALSE，不再产出此文件
+    release: false
 });
 
 // 所有的文件产出到 static/ 目录下
