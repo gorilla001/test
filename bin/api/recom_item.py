@@ -13,10 +13,6 @@ from util.helper import error, ErrorCode, mongo_uid, gen_orderno
 class DetailHandler(AuthHandler):
     @coroutine
     def get(self):
-        if self.userid == 0:
-            self.write(error(ErrorCode.LOGINERR))
-            return
-
         try:
             recom_item_id = int(self.get_argument('id'))
         except Exception as e:
@@ -31,7 +27,7 @@ class DetailHandler(AuthHandler):
                     recom_item['imgs'] = list(map(lambda x: IMG_CACHE_URL + x[len(IMAGE_DOMAIN):] if x.startswith(IMAGE_DOMAIN) else x, recom_item['imgs']))
 
                 buffer = io.BytesIO()
-                url = pyqrcode.create(RECOMITEM_BASE_URL + str(id))
+                url = pyqrcode.create(RECOMITEM_BASE_URL + str(recom_item_id))
                 url.png(buffer, scale=5, quiet_zone=0)
                 qrcode = base64.encodebytes(buffer.getvalue()).decode().replace('\n', '')
 

@@ -134,7 +134,7 @@ class YoucaiWeb(Application):
             (r'/pay_test', PayWeixinTestHandler),  # 微信支付测试页
             (r'/api/address/list', address.ListHandler),
             (r'/api/address/save', address.SaveHandler),
-            (r'/api/recom_item/detail', recom_item.DetailHandler),
+            (r'/api/recom_item', recom_item.DetailHandler),
             (r'/api/home', home.HomeHandler),
             (r'/api/auth/send_smscode', auth.SendSmscodeHandler),
             (r'/api/auth/login', auth.LoginHandler),
