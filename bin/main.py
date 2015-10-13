@@ -35,8 +35,8 @@ class IndexHandler(AuthHandler):
 
             client = AsyncHTTPClient()
             query = {
-                'appid': WX_CONF['appid'],
-                'secret': WX_CONF['secret'],
+                'appid': WXPAY_CONF['youcai']['appid'],
+                'secret': WXPAY_CONF['youcai']['secret'],
                 'code': code,
                 'grant_type': 'authorization_code'
             }
