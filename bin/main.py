@@ -11,7 +11,7 @@ from tornado.options import options
 from tornado.web import Application
 from tornado.httpclient import AsyncHTTPClient
 from conf.settings import CACHE_SERVER, log, MONGO_STORE, MONGO_HAMLET, MONGO_YOUCAI, ROOT_PATH, SESSION_SECRET, \
-    SESSION_SERVER, SESSION_TIMEOUT, WXPAY_CONF, WX_CONF
+    SESSION_SERVER, SESSION_TIMEOUT, WXPAY_CONF
 from util.cache import Cache
 from util.helper import error, ErrorCode
 from util.session import SessionManager
@@ -64,8 +64,8 @@ class IndexHandler(AuthHandler):
 
         client = AsyncHTTPClient()
         query = {
-            'appid': WX_CONF['appid'],
-            'secret': WX_CONF['secret'],
+            'appid': WXPAY_CONF['youcai']['appid'],
+            'secret': WXPAY_CONF['youcai']['secret'],
             'code': code,
             'grant_type': 'authorization_code'
         }
