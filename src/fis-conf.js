@@ -10,15 +10,19 @@ fis.set('project.ignore', [
     //'static/styles/**.less'
     'fis-conf.js',
     'package.json',
-    'bower.json'
+    'bower.json',
+    //'bower_components'
 ]);
 
-// MD5
 fis.match('bower.json', {
     // 设置 release 为 FALSE，不再产出此文件
     release: false
 });
 
+// MD5
+fis.match('*.{js,css,png}', {
+    useHash: true
+});
 
 // 所有的文件产出到 static/ 目录下
 //fis.match('src/static/*', {
@@ -37,13 +41,8 @@ fis.match('/*.html', {
     release: '/templates/$0'
 });
 
-fis.match('/bower_components/**/*', {
+fis.match('/bower_components/**/*.{js,css}', {
     release: '/static/$0'
-});
-
-//清除其他配置，只剩下如下配置
-fis.match('*.{js,css,png}', {
-    useHash: true
 });
 
 fis.match('/static/styles/*.scss', {
