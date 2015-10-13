@@ -149,17 +149,25 @@ fis.media('prod')
     //    preprocessor: fis.plugin('annotate'),
     //    optimizer: fis.plugin('uglify-js')
     //})
-    //.match('**.css', {
-    //    optimizer: fis.plugin('clean-css')
-    //})
     //.match("lib/mod.js", {
     //    packTo: "/pkg/vendor.js"
     //})
-    //所有页面中引用到的bower js资源
-    .match("bower_components/**/*.js", {
-        packTo: "/pkg/vendor.js"
+
+    ////所有页面中引用到的bower js资源
+    //.match("bower_components/**/*.js", {
+    //    packTo: "/pkg/vendor.js"
+    //})
+    ////所有页面中引用到的bower css资源
+    //.match("bower_components/**/*.css", {
+    //    packTo: "/pkg/vendor.css"
+    //});
+
+    //.match('**!(.async).js', {
+    .match('app.js', {
+        //preprocessor: fis.plugin('annotate'),
+        optimizer: fis.plugin('uglify-js')
     })
-    //所有页面中引用到的bower css资源
-    .match("bower_components/**/*.css", {
-        packTo: "/pkg/vendor.css"
+    .match('**.css', {
+        optimizer: fis.plugin('clean-css')
     });
+
