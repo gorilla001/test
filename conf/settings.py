@@ -45,7 +45,7 @@ IMAGE_DEFAULT = 'https://img.shequcun.com/zone.jpg'
 IMAGE_DOMAIN = 'https://img.shequcun.com'
 UPLOAD_PATH = '/home/hamlet/shequcun/upload'
 UPLOAD_DOC_PATH = '/home/hamlet/shequcun/upload/import'
-IMG_CACHE_URL = 'http://7xjgn9.com2.z0.glb.qiniucdn.com'
+IMG_CACHE_URL = 'https://7xjgn9.com2.z0.glb.qiniucdn.com'
 
 YC_USER_LIST_STORE_PATH = '/home/hamlet/shequcun/upload/export'
 YC_USER_DOWNLOAD_URL = 'https://img.shequcun.com/export'
