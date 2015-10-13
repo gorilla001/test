@@ -495,13 +495,14 @@ body {
     width: 0.9375rem;
     margin-left: 1.03125rem; }
   .c-bottom-buy .add {
-    width: auto;
+    width: 2.4375rem;
     height: 1.1875rem;
     line-height: 1.1875rem;
     padding: 0 0.3125rem;
     margin-top: -0.07813rem;
     color: white;
-    background-color: #F16144; }
+    background-color: #F16144;
+    font-size: 0.4375rem; }
   .c-bottom-buy a.btn:link, .c-bottom-buy a.btn:visited, .c-bottom-buy a.btn:hover, .c-bottom-buy a.btn:active {
     text-decoration: none;
     color: white; }
@@ -514,6 +515,10 @@ body {
   width: 100%;
   font-size: 0.5rem; }
   .c-bottom-guide a {
+    display: block;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    -ms-flex: 1;
     flex: 1;
     height: 1.40625rem;
     line-height: 1.40625rem;
@@ -549,6 +554,22 @@ body {
       background-color: #E56046;
       color: white;
       border-radius: 0.09375rem; }
+
+.c-dimmer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: none;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1100;
+  opacity: 0; }
+  .c-dimmer.active {
+    opacity: 1;
+    display: block; }
 
 /*幻灯片*/
 .slide {
@@ -601,19 +622,37 @@ body {
 #p-recom-item {
   padding-bottom: 1.78125rem;
   background-color: #ebeeed; }
-  #p-recom-item #go-index {
+  #p-recom-item .top {
     position: fixed;
-    top: 0.46875rem;
-    left: 0.46875rem;
+    top: 0;
+    left: 0;
+    height: 1.25rem;
+    width: 10rem;
+    background-color: #282828;
+    opacity: 0.6;
+    padding: 0.23438rem 0.625rem 0.23438rem 0.875rem;
     color: white;
     z-index: 10; }
+    #p-recom-item .top > * {
+      display: inline-block; }
+    #p-recom-item .top a {
+      width: 1.5625rem;
+      height: 0.78125rem;
+      line-height: 0.78125rem;
+      border: none;
+      font-size: 0.46875rem;
+      color: white; }
+    #p-recom-item .top img {
+      width: 0.76563rem;
+      height: 0.76563rem; }
   #p-recom-item .slide {
     height: 7.5rem; }
   #p-recom-item section {
     padding: 0.46875rem 0.5rem;
     background-color: #fff;
     margin-bottom: 0.25rem;
-    position: relative; }
+    position: relative;
+    font-size: 0.40625rem; }
     #p-recom-item section h2 {
       font-size: 0.5rem;
       margin-bottom: 0.3125rem;
@@ -673,6 +712,33 @@ body {
     top: 50%;
     margin-top: -0.25rem;
     font-size: larger; }
+  #p-recom-item .show_img {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1110;
+    text-align: center; }
+    #p-recom-item .show_img .box {
+      width: 8rem;
+      background-color: white;
+      margin: 0 auto;
+      border-radius: 0.15625rem;
+      padding: 0.7rem;
+      margin-top: 50vh;
+      -webkit-transform: translateY(-50%);
+      -ms-transform: translateY(-50%);
+      transform: translateY(-50%); }
+    #p-recom-item .show_img img {
+      width: 6.6rem;
+      height: 6rem;
+      margin: 0 auto; }
+    #p-recom-item .show_img > * {
+      color: #B2B2B2;
+      font-size: 0.375rem; }
+    #p-recom-item .show_img .text {
+      padding-top: 0.4rem; }
 
 #p-index {
   background-color: #EAEEEE; }
@@ -698,7 +764,18 @@ body {
       padding: 0.3125rem;
       border: 1px solid #DBDBDB;
       border-top: 0;
-      background-color: white; }
+      background-color: white;
+      font-size: 0.375rem;
+      color: #B8B8B8; }
+      #p-index .box .detail-box h3 {
+        margin-bottom: 0.3125rem;
+        color: #000; }
+      #p-index .box .detail-box .text_1 {
+        font: 0.3125rem;
+        margin-bottom: 0.375rem; }
+      #p-index .box .detail-box .price {
+        color: #49C37E;
+        margin-right: 0.21875rem; }
 
 #p-buy {
   background-color: #EAEEEE;

@@ -6,13 +6,51 @@
   background-color: #ebeeed;
 
   // 首页
-  #go-index {
+  //#go-index {
+  //  //position: fixed;
+  //  position: absolute;
+  //  top: px2rem(30);
+  //  left: px2rem(30);
+  //  color: white;
+  //  z-index: 10;
+  //  font-size: px2rem(30);
+  //
+  //  background-color: #282828;
+  //}
+
+  .top {
     position: fixed;
-    top: px2rem(30);
-    left: px2rem(30);
+    top: 0;
+    //bottom: 0;
+    left: 0;
+    height: px2rem(80);
+    //width: 100%;
+    width: 10rem;
+    background-color: #282828;
+    opacity: 0.6;
+    padding: px2rem(15) px2rem(40) px2rem(15) px2rem(56);
     color: white;
+
     z-index: 10;
+    & > * {
+      display: inline-block;
+    }
+    a {
+      width: px2rem(100);
+      height: px2rem(50);
+      line-height: px2rem(50);
+      border: none;
+      font-size: px2rem(30);
+      color: white;
+    }
+    img {
+      width: px2rem(49);
+      height: px2rem(49);
+
+      //float: right;
+    }
   }
+
   .slide {
     // 长宽比例 4:3
     height: 10/4*3rem;
@@ -23,6 +61,7 @@
     background-color: #fff;
     margin-bottom: px2rem(16);
     position: relative;
+    font-size: px2rem(26);
     h2 {
       font-size: px2rem(32);
       margin-bottom: px2rem(20);
@@ -113,5 +152,47 @@
 
     //background: no-repeat right center;
     //background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20viewBox%3D'0%200%2060%20120'%20x…9.25-28.5-29.25-28.5%209.75-9.75z'%20fill%3D'%23c7c7cc'%2F%3E%3C%2Fsvg%3E");
+  }
+
+  .show_img {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1110;
+    text-align: center;
+
+    .box {
+      width: 8rem;
+      //height: 9.2rem;
+      background-color: white;
+      margin: 0 auto;
+      border-radius: px2rem(10);
+      padding: 0.7rem;
+
+      //transform: translateY(3rem);
+      margin-top: 50vh;
+      //margin-top: 50%;
+      -webkit-transform: translateY(-50%);
+      -ms-transform: translateY(-50%);
+      transform: translateY(-50%);
+    }
+    //background-color: white;
+
+    img {
+      //width: px2rem(400);
+      //height: px2rem(400);
+      width: 6.6rem;
+      height: 6rem;
+      margin: 0 auto;
+    }
+    & > * {
+      color: #B2B2B2;
+      font-size: px2rem(24);
+    }
+    .text {
+      padding-top: 0.4rem;
+    }
   }
 }

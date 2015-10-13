@@ -189,6 +189,12 @@ var fun = {
 //    template: '<div class="c-bottom-buy row-1"><div><button class="btn" v-on="click: count++">-</button><span class="count">(%count%)</span><button class="btn" v-on="click: count++">+</button></div><a class="btn add">加入购物车</a></div>'
 //});
 
+//背景遮罩
+Vue.component('c-dimmer', {
+    props: ['active'],
+    template: '<div class="c-dimmer" v-class="active : active" data-am-dimmer=""></div>'
+});
+
 //加载中组件
 Vue.component('c-load', {
     props: ['hasShow'],
@@ -364,9 +370,14 @@ var Index = Vue.extend({
 //单品详情
 var RecomItem = Vue.extend({
     template: '#recom-item-template',
+    data: function () {
+        return {
+            show_qr_code: false
+        };
+    },
     created: function () {
         var id = this.$route.params.id;
-        this.$http.jsonp(app.apiDomain + '/cai/itemdtl', {id: id}, function (data, status, request) {
+        this.$http.get('/api/recom_item', {id: id}, function (data, status, request) {
 
             this.status = '';
             // set data on vm

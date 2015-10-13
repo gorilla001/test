@@ -13,6 +13,9 @@
     line-height: px2rem(60);
     font-size: px2rem(32);
     text-align: center;
+
+    //text-decoration: line-through;
+    //color: red;
   }
 
   .box {
@@ -40,6 +43,20 @@
       border: 1px solid #DBDBDB;
       border-top: 0;
       background-color: white;
+      font-size: px2rem(24);
+      color: #B8B8B8;
+      h3 {
+        margin-bottom: px2rem(20);
+        color: #000;
+      }
+      .text_1 {
+        font: px2rem(20);
+        margin-bottom: px2rem(24);
+      }
+      .price {
+        color: #49C37E;
+        margin-right: px2rem(14);
+      }
     }
   }
 }
@@ -64,7 +81,7 @@
   }
   .address {
     //height: px2rem(120);
-    background-image: url(/static/img/caidai.png);
+    background-image: url(/static/img/caidai_927c0a3.png);
     background-repeat: repeat-x;
     span {
       margin-right: px2rem(37);
