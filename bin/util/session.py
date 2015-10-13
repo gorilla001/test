@@ -62,8 +62,8 @@ class SessionManager(object):
             session_id = None
             hmac_key = None
         else:
-            session_id = request_handler.get_secure_cookie('sid').decode()
-            hmac_key = request_handler.get_secure_cookie('skey').decode()
+            session_id = request_handler.get_secure_cookie('sid')
+            hmac_key = request_handler.get_secure_cookie('skey')
 
         if session_id is None:
             session_exists = False
