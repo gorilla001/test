@@ -276,7 +276,7 @@ Vue.component('c-bottom-buy', Vue.extend({
     //v-attr="disabled: dis"\'disabled\'
     //template: '<div class="c-bottom-buy row-1"><div class="action"><button class="btn reduce" v-attr="disabled:count>1?false:true" v-on="click: count--">-</button><span class="count">(%count%)</span><button class="btn increase" v-on="click: count++">+</button></div><a class="btn add" v-link="{ path: \'/login\'}">登录</a><a class="btn add" v-on="click: buy()">立即购买</a></div>'
     //template: '<div class="c-bottom-buy row-1"><div class="action"><button class="btn reduce" v-attr="disabled:count>1?false:true" v-on="click: count--">-</button><span class="count">(%count%)</span><button class="btn increase" v-on="click: jia()">+</button></div><a class="btn add" v-on="click: buy()">立即购买</a></div>'
-    template: '<div class="c-bottom-buy row-1"><div v-show="2==type"></div><div class="action" v-show="2!=type"><button class="btn reduce" v-attr="disabled:count>1?false:true" v-on="click: count--">-</button><span class="count">(%count%)</span><button class="btn increase" v-on="click: count++">+</button></div><a class="btn add" v-on="click: buy()">立即购买</a></div>'
+    template: '<div class="c-bottom-buy row-1"><div v-show="2==type"></div><div class="action" v-show="2!=type"><button class="btn reduce" v-attr="disabled:count>1?false:true" v-on="click: count--">━</button><span class="count">(%count%)</span><button class="btn increase" v-on="click: count++">╋</button></div><a class="btn add" v-on="click: buy()">立即购买</a></div>'
 }));
 
 var Index = Vue.extend({
