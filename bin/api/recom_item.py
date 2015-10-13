@@ -32,7 +32,7 @@ class DetailHandler(AuthHandler):
 
                 buffer = io.BytesIO()
                 url = pyqrcode.create(RECOMITEM_BASE_URL + str(id))
-                url.png(buffer, scale=5)
+                url.png(buffer, scale=5, quiet_zone=0)
                 qrcode = base64.encodebytes(buffer.getvalue()).decode().replace('\n', '')
 
                 recom_item['qrcode'] = qrcode
