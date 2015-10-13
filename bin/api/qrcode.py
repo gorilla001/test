@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import time
-import qrcode
-from hashlib import md5
+import io
+import base64
+import pyqrcode
 from conf.settings import log
 from base import AuthHandler
-from util.helper import error, ErrorCode, mongo_uid, gen_orderno
+from util.helper import error, ErrorCode
 
 
 class QrcodeHandler(AuthHandler):
@@ -16,7 +16,8 @@ class QrcodeHandler(AuthHandler):
             log.error(e)
             return self.write(error(ErrorCode.PARAMERR))
 
-        now = md5(url.encode()).hexdigest()
-        img = qrcode.make(url)
-        img.save('/tmp/{0}.png'.format(now))
-        return self.write({'now': now})
+        buffer = io.BytesIO()
+        url = pyqrcode.create(url)
+        url.png(buffer, scale=5)
+        result = base64.encodebytes(buffer.getvalue()).decode().replace('\n', '')
+        return self.write(result)

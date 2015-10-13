@@ -140,7 +140,6 @@ class YoucaiWeb(Application):
             (r'/api/auth/login', auth.LoginHandler),
             (r'/api/order', order.OrderHandler),
             (r'/api/qrcode', qrcode.QrcodeHandler),
-            (r'/api/static_file/(.*)', tornado.web.StaticFileHandler, {'path': '/tmp'})
         ]
         settings = dict(
             debug=options.debug,
