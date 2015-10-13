@@ -493,7 +493,8 @@ body {
       color: #93979C; }
   .c-bottom-buy .count {
     width: 0.9375rem;
-    margin-left: 1.03125rem; }
+    margin-left: 1.03125rem;
+    font-size: 0.46875rem; }
   .c-bottom-buy .add {
     width: 2.4375rem;
     height: 1.1875rem;
