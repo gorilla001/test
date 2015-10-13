@@ -56,6 +56,8 @@ class IndexHandler(AuthHandler):
                 return self.write(error(ErrorCode.REQERR, '请求openid出错'))
 
         #self.get_openid(self.get_argument('code', None) or '')
+        log.info('================openid===========')
+        log.info(self.session.get('openid'))
         self.render('index.html')
 
     def get_openid(self, code):
