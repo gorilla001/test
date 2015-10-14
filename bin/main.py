@@ -135,8 +135,7 @@ class YoucaiWeb(Application):
             (r'/wx', WxHandler),  # 微信授权页面
             # (r'/pay/weixn_test', PayWeixinTestHandler),  # 微信支付测试页
             (r'/pay_test', PayWeixinTestHandler),  # 微信支付测试页
-            (r'/api/address/list', address.ListHandler),
-            (r'/api/address/save', address.SaveHandler),
+            (r'/api/address', address.AddressHandler),
             (r'/api/recom_item', recom_item.DetailHandler),
             (r'/api/home', home.HomeHandler),
             (r'/api/auth/send_smscode', auth.SendSmscodeHandler),
