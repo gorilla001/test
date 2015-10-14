@@ -52,13 +52,7 @@ class OrderHandler(AuthHandler):
             return self.write(error(ErrorCode.LOGINERR))
 
         try:
-            combo_id = int(self.get_argument('combo_id', 0))  # 套餐订单，选菜订单必传，套餐订单不传items和extras
-            order_type = int(self.get_argument('type'))  # 订单类型
-            combo_idx = int(self.get_argument('combo_idx', 0))  # 子订单序号
-            raw_items = self.get_argument('items', None)  # 选菜订单必传，格式：id1:amount1,id2:amount2...
-            raw_extras = self.get_argument('extras', None)  # 选菜订单可选，单品订单必传，格式：id1:amount1,id2:amount2...
-            spares = self.get_argument('spares', None)  # 备选菜,格式：id1, id2, id3...
-            coupon_id = int(self.get_argument('coupon_id', None) or 0)
+            raw_extras = self.get_argument('extras', None)  # 格式：id1:amount1,id2:amount2...
             name = self.get_argument('name')
             mobile = self.get_argument('mobile')
             address = self.get_argument('address')
@@ -68,375 +62,134 @@ class OrderHandler(AuthHandler):
             log.error(e)
             return self.write(error(ErrorCode.PARAMERR))
 
-        if not order_type:
-            log.error("order type must be specified")
-            return self.write(error(ErrorCode.PARAMERR))
-
         if not name or not mobile or not address:
             log.error("name or mobile or address must specified")
             return self.write(error(ErrorCode.PARAMERR))
 
-        if order_type == 1:
-            # if not combo_id or combo_idx is None:
-            #     log.error("combo id or idx must be specified")
-            #     return self.write(error(ErrorCode.PARAMERR))
-            if not combo_id:
-                log.error("combo_id must be specified")
-                return self.write(error(ErrorCode.PARAMERR))
-
-            if not raw_items:  # empty combo order
-                log.error("没有选菜")
-                return self.write(error(ErrorCode.PARAMERR))
-            else:  # combo with items
-                if not raw_extras:  # combo with items no extras
-                    combo = yield self.get_combo_info(combo_id)
-                    if not combo:
-                        log.error("no such combo {}".format(combo_id))
-                        return self.write(error(ErrorCode.NODATA, '套餐不存在'))
-
-                    oid = mongo_uid(_DATABASE, 'order')
-                    order_no = gen_orderno(oid)  # used for alipay also
-                    combo_order_no = order_no
-                    order_type = 1
-                    try:
-                        price = self.get_combo_price(combo, combo_idx)
-                    except IndexError:
-                        return self.write(self.write(error(ErrorCode.DBERR)))
-
-                    status = 0
-                    times = 1
-                    title = combo['title']  # used for alipay only
-                    item_type = 1
-                    fid = combo['fid']
-                    farm = combo['farm']
-                    yield self.create_order(oid, order_no, combo_order_no, order_type, item_type, price, status, times,
-                                            fid, farm, combo, combo_idx, name, mobile, address, memo)
-
-                    items_list = raw_items.split(',')
-                    if not self.validate_items(items_list):
-                        log.error("raw items format error")
-                        return self.write(error(ErrorCode.PARAMERR))
-
-                    try:
-                        yield self.add_items(order_no, items_list)
-                    except ItemNotFoundError as exc:
-                        log.error(exc)
-                        return self.write(error(ErrorCode.NODATA, '要购买的菜品在数据库找不到'))
-
-                else:
-                    combo = yield self.get_combo_info(combo_id)
-                    if not combo:
-                        log.error("no such combo {}".format(combo_id))
-                        return self.write(error(ErrorCode.NODATA, '套餐不存在'))
-
-                    oid = mongo_uid(_DATABASE, 'order')
-                    order_no = gen_orderno(oid)  # used for alipay also
-                    combo_order_no = order_no
-                    order_type = 1
-                    status = 0
-                    times = 1
-                    title = combo['title']  # used for alipay only
-                    item_type = 1
-                    fid = combo['fid']
-                    farm = combo['farm']
-                    raw_extras_list = raw_extras.split(',')
-                    if not self.validate_items(raw_extras_list):
-                        log.error("raw items format error")
-                        return self.write(error(ErrorCode.PARAMERR))
-
-                    try:
-                        price = yield self.get_extras_price(raw_extras_list)
-                    except ItemNotFoundError as exc:
-                        log.error(exc)
-                        return self.write(error(ErrorCode.NODATA, '要购买的菜品在数据库找不到'))
-
-                    yield self.create_order(oid, order_no, combo_order_no, order_type, item_type, price, status, times,
-                                            fid, farm, combo, combo_idx, name, mobile, address, memo)
-
-                    try:
-                        yield self.add_extras(order_no, raw_extras_list)
-                    except ItemNotFoundError as exc:
-                        log.error(exc)
-                        return self.write(error(ErrorCode.NODATA, '要购买的菜品在数据库找不到'))
-
-                    raw_items_list = raw_items.split(',')
-                    if not self.validate_items(raw_items_list):
-                        log.error("raw items format error")
-                        return self.write(error(ErrorCode.PARAMERR))
-
-                    try:
-                        yield self.add_items(order_no, raw_items_list)
-                    except ItemNotFoundError as exc:
-                        log.error(exc)
-                        return self.write(error(ErrorCode.NODATA, '要购买的菜品在数据库找不到'))
-
-                if spares:
-                    spares_list = spares.split(',')
-                    spares_item = []
-                    for sp in spares_list:
-                        try:
-                            sp_obj = yield self.db[_DATABASE].issue_item.find_one({'id': int(sp)}, {'_id': 0})
-                        except Exception as exc:
-                            log.error(exc)
-                            return self.write(error(ErrorCode.DBERR))
-
-                        if not sp_obj:
-                            log.error("no such spares item {}".format(sp))
-                            return self.write(error(ErrorCode.PARAMERR))
-                        spare_title = sp_obj['title']
-                        img = sp_obj['imgs'][0]
-                        now = round(time.time() * 1000)
-                        oid = mongo_uid(_DATABASE, 'order_spare')
-
-                        item = {'id': oid,
-                                'ssid': sp,
-                                'orderno': order_no,
-                                'title': spare_title,
-                                'img': img,
-                                'created': now,
-                                'modified': now}
-
-                        spares_item.append(item)
-
-                    try:
-                        yield self.db[_DATABASE].order_spare.insert(spares_item)
-                    except Exception as exc:
-                        log.error(exc)
-                        return self.write(error(ErrorCode.DBERR))
-        elif order_type == 2:
-            if not combo_id or not raw_items:
-                log.error("combo_id or raw_items must be specified")
-                return self.write(error(ErrorCode.PARAMERR))
-
-            combo = yield self.get_combo_info(combo_id)
-            if not combo:
-                log.error("no such combo {}".format(combo_id))
-                return self.write(error(ErrorCode.NODATA, '套餐不存在'))
-
-            # duration = combo['duration']
-            # max_times = len(shipday) * duration
-            title = combo['title']  # used for alipay only
-            order_info = yield self.get_order_info(self.userid, combo_id)
-            try:
-                order_times = len(order_info)
-            except (TypeError, IndexError):
-                return self.write(error(ErrorCode.DBERR, "无法判定已经配送的次数"))
-
-            duration = combo['duration']
-            ship_times = len(combo['shipday'])
-            total_times = duration * ship_times
-            if order_times >= total_times:
-                return self.write(error(ErrorCode.REQERR, "套餐配送次数已购"))
-
-            combo_order = yield self.get_combo_order(self.userid, combo_id)
-
-            combo_order_no = combo_order['orderno']
-            times = order_times + 1
-            combo_idx = combo_order['combo_idx']
-            shipday_weekday = combo['shipday'][0]
-            now = datetime.datetime.now()
-            today = datetime.datetime(now.year, now.month, now.day)
-            delta = shipday_weekday - today.isoweekday()
-            shipday = today + datetime.timedelta(days=7 + delta if delta < 0 else delta)
-            left_day = shipday + datetime.timedelta(days=-7)
-            right_day = shipday + datetime.timedelta(days=-1)
-            created = order_info[0]['created'] / 1000
-            if left_day.timestamp() <= created < right_day.timestamp():
-                return self.write(error(ErrorCode.DATAEXIST, "今天您已经选过菜了"))
-
-            try:
-                last_delay = yield self.db[_DATABASE].order_delay.find(
-                    {'orderno': combo_order_no},
-                    {'_id': 0, 'times': 1, 'date': 1}).sort([('id', -1)]).limit(1).to_list(1)
-            except Exception as exc:
-                log.error(exc)
-                return self.write(error(ErrorCode.DBERR))
-
-            next_shipday = shipday + datetime.timedelta(days=7)
-            next_date = round(next_shipday.timestamp() * 1000)
-            if last_delay and next_date == last_delay[0]['date']:
-                return self.write(error(ErrorCode.REQERR, "已延期不能选菜"))
-
-            oid = mongo_uid(_DATABASE, 'order')
-            order_no = gen_orderno(oid)  # used for alipay also
-            order_type = 2
-            price = 0
-            status = 1
-            item_type = 1
-            fid = combo['fid']
-            farm = combo['farm']
-
-            yield self.create_order(oid, order_no, combo_order_no, order_type, item_type, price, status, times,
-                                    fid, farm, combo, combo_idx, name, mobile, address, memo)
-
-            raw_items_list = raw_items.split(',')
-            if not self.validate_items(raw_items_list):
-                log.error("raw items format error")
-                return self.write(error(ErrorCode.PARAMERR))
-
-            try:
-                yield self.add_items(order_no, raw_items_list)
-            except ItemNotFoundError as exc:
-                log.error(exc)
-                return self.write(error(ErrorCode.NODATA, '要购买的菜品在数据库找不到'))
-        elif order_type == 3:
-            if not raw_extras:
-                log.error("raw extras can't be null")
-                return self.write(error(ErrorCode.PARAMERR))
-
-            oid = mongo_uid(_DATABASE, 'order')
-            order_no = gen_orderno(oid)  # used for alipay also
-            # combo_order_no = 0
-            order_type = 3
-            status = 0
-            times = 0
-            item_type = 2
-            fid = 0
-            fname = ''
-
-            farm_and_items = {}
-            raw_extras_list = raw_extras.split(',')
-            for item in raw_extras_list:
-                match = re.match(r"^(\d+)\:(\d+)$", item)
-                item_id = int(match.group(1))
-                item_obj = yield self.get_recom_item(item_id)
-                if not item_obj:
-                    raise ItemNotFoundError(item_id)
-
-                item_obj = item_obj[0]
-                recom_type = item_obj['type']
-                if recom_type == 2:  # 秒杀
-                    item_type = 3
-                    ckey = 'seckill_%d_%d' % (self.userid, item_id)
-                    seckill = self.cache.get(ckey)
-                    if not seckill:
-                        seckill = yield self.get_seckill_item(self.userid, item_id)
-                    if seckill:
-                        return self.write(error(ErrorCode.DATAEXIST, '您已经秒杀过该商品,不能重复秒杀!'))
-
-                    yield self.add_seckill_item(self.userid, item_id)
-                    self.cache.today(ckey, True)
-                    fid = item_obj['fid']
-                    fname = item_obj['farm']
-                if recom_type == 1:  # 普通单品
-                    farm_id = int(item_obj['fid'])
-                    farm = str(item_obj['farm'])
-                    try:
-                        farm_and_items[(farm_id, farm)].append(item)
-                    except KeyError:
-                        farm_and_items[(farm_id, farm)] = [item]
-            #         farm_id_list.append(fid)
-
-            if len(farm_and_items) == 1:
-                fid = list(farm_and_items.keys())[0][0]
-                fname = list(farm_and_items.keys())[0][1]
-            # if len(set(farm_id_list)) > 1:
-            #     fid = 0
-            try:
-                price = yield self.get_extras_price(raw_extras_list)
-            except ItemNotFoundError as exc:
-                log.error(exc)
-                return self.write(error(ErrorCode.NODATA, '要购买的菜品在数据库找不到'))
-
-            title = yield self.get_extras_title(raw_extras_list)
-            combo, combo_idx = None, None
-            combo_order_no = 0
-            yield self.create_order(oid, order_no, combo_order_no, order_type, item_type, price, status, times, fid,
-                                    fname, combo, combo_idx, name, mobile, address, memo, title)
-
-            try:
-                yield self.add_extras(order_no, raw_extras_list)
-            except ItemNotFoundError as exc:
-                log.error(exc)
-                return self.write(error(ErrorCode.NODATA, '要购买的菜品在数据库找不到'))
-
-            if fid == 0:
-                for (farm_id, farm), items in farm_and_items.items():
-                    con = order_no
-                    order_type = 3
-                    item_type = 2
-                    status = 0
-                    times = 0
-                    fid = farm_id
-                    farm = farm
-                    combo, combo_idx = None, None
-                    try:
-                        split_price = yield self.get_extras_price(items)
-                    except ItemNotFoundError as exc:
-                        log.error(exc)
-                        return self.write(error(ErrorCode.NODATA, '要购买的菜品在数据库找不到'))
-
-                    split_title = yield self.get_extras_title(items)
-
-                    items_list = []
-                    for item in items:
-                        match = re.match(r"^(\d+)\:(\d+)$", item)
-                        id, amount = int(match.group(1)), int(match.group(2))
-                        obj = yield self.get_recom_item(id)
-                        if not obj:
-                            raise ItemNotFoundError(id)
-
-                        obj = obj[0]
-
-                        title = obj['title']
-                        try:
-                            img = obj['imgs'].pop()
-                        except IndexError:
-                            img = ''
-                        packw = obj['packw']
-                        packs = amount
-                        now = round(time.time() * 1000)
-
-                        item = {'siid': id,
-                                'title': title,
-                                'img': img,
-                                'packw': packw,
-                                'packs': packs,
-                                'created': now,
-                                'modified': now
-                                }
-
-                        items_list.append(item)
-
-                    yield self.create_temp_order(con, order_type,item_type, split_price, status, times, fid, farm,
-                                                 combo, combo_idx, name, mobile, address, memo, items_list, split_title)
-
-        else:
+        if not raw_extras:
+            log.error("raw extras can't be null")
             return self.write(error(ErrorCode.PARAMERR))
+
+        oid = mongo_uid(_DATABASE, 'order')
+        order_no = gen_orderno(oid)  # used for alipay also
+        # combo_order_no = 0
+        order_type = 3
+        status = 0
+        times = 0
+        item_type = 2
+        fid = 0
+        fname = ''
+
+        farm_and_items = {}
+        raw_extras_list = raw_extras.split(',')
+        for item in raw_extras_list:
+            match = re.match(r"^(\d+)\:(\d+)$", item)
+            item_id = int(match.group(1))
+            item_obj = yield self.get_recom_item(item_id)
+            if not item_obj:
+                raise ItemNotFoundError(item_id)
+
+            item_obj = item_obj[0]
+            recom_type = item_obj['type']
+            if recom_type == 2:  # 秒杀
+                item_type = 3
+                ckey = 'seckill_%d_%d' % (self.userid, item_id)
+                seckill = self.cache.get(ckey)
+                if not seckill:
+                    seckill = yield self.get_seckill_item(self.userid, item_id)
+                if seckill:
+                    return self.write(error(ErrorCode.DATAEXIST, '您已经秒杀过该商品,不能重复秒杀!'))
+
+                yield self.add_seckill_item(self.userid, item_id)
+                self.cache.today(ckey, True)
+                fid = item_obj['fid']
+                fname = item_obj['farm']
+            if recom_type == 1:  # 普通单品
+                farm_id = int(item_obj['fid'])
+                farm = str(item_obj['farm'])
+                try:
+                    farm_and_items[(farm_id, farm)].append(item)
+                except KeyError:
+                    farm_and_items[(farm_id, farm)] = [item]
+        #         farm_id_list.append(fid)
+
+        if len(farm_and_items) == 1:
+            fid = list(farm_and_items.keys())[0][0]
+            fname = list(farm_and_items.keys())[0][1]
+        # if len(set(farm_id_list)) > 1:
+        #     fid = 0
+        try:
+            price = yield self.get_extras_price(raw_extras_list)
+        except ItemNotFoundError as exc:
+            log.error(exc)
+            return self.write(error(ErrorCode.NODATA, '要购买的菜品在数据库找不到'))
+
+        title = yield self.get_extras_title(raw_extras_list)
+        combo, combo_idx = None, None
+        combo_order_no = 0
+        yield self.create_order(oid, order_no, combo_order_no, order_type, item_type, price, status, times, fid,
+                                fname, combo, combo_idx, name, mobile, address, memo, title)
+
+        try:
+            yield self.add_extras(order_no, raw_extras_list)
+        except ItemNotFoundError as exc:
+            log.error(exc)
+            return self.write(error(ErrorCode.NODATA, '要购买的菜品在数据库找不到'))
+
+        if fid == 0:
+            for (farm_id, farm), items in farm_and_items.items():
+                con = order_no
+                order_type = 3
+                item_type = 2
+                status = 0
+                times = 0
+                fid = farm_id
+                farm = farm
+                combo, combo_idx = None, None
+                try:
+                    split_price = yield self.get_extras_price(items)
+                except ItemNotFoundError as exc:
+                    log.error(exc)
+                    return self.write(error(ErrorCode.NODATA, '要购买的菜品在数据库找不到'))
+
+                split_title = yield self.get_extras_title(items)
+
+                items_list = []
+                for item in items:
+                    match = re.match(r"^(\d+)\:(\d+)$", item)
+                    id, amount = int(match.group(1)), int(match.group(2))
+                    obj = yield self.get_recom_item(id)
+                    if not obj:
+                        raise ItemNotFoundError(id)
+
+                    obj = obj[0]
+
+                    title = obj['title']
+                    try:
+                        img = obj['imgs'].pop()
+                    except IndexError:
+                        img = ''
+                    packw = obj['packw']
+                    packs = amount
+                    now = round(time.time() * 1000)
+
+                    item = {'siid': id,
+                            'title': title,
+                            'img': img,
+                            'packw': packw,
+                            'packs': packs,
+                            'created': now,
+                            'modified': now
+                            }
+
+                    items_list.append(item)
+
+                yield self.create_temp_order(con, order_type,item_type, split_price, status, times, fid, farm,
+                                             combo, combo_idx, name, mobile, address, memo, items_list, split_title)
 
         result = {'orderno': order_no}
         if price != 0:
             disprice = price
-            if coupon_id != 0:
-                try:
-                    coupon = yield self.db[_DATABASE].coupon.find_one({'id': coupon_id, 'uid': self.userid})
-                except Exception as exc:
-                    log.error(exc)
-                    return self.write(error(ErrorCode.DBERR))
-
-                if not coupon:
-                    log.error("优惠券不存在{}".format(coupon_id))
-                    return self.write(error(ErrorCode.REQERR, '非法请求'))
-
-                if (order_type == 1 and coupon['type'] == 2) or (order_type == 3 and coupon['type'] == 1):
-                    log.error("优惠卷类型不匹配， 订单类型{} 优惠券类型{}".format(
-                        _ORDER_TYPE[order_type],
-                        _COUPON_TYPE[coupon['type']])
-                    )
-                    return self.write(error(ErrorCode.REQERR, '非法请求'))
-
-                if coupon['used']:
-                    return self.write(error(ErrorCode.DATAEXIST, '优惠券已使用过'))
-
-                if round(time.time() * 1000) > coupon['expire']:
-                    return self.write(error(ErrorCode.CODEXPIRE, '优惠券已过期'))
-
-                if coupon['distype'] == 1:
-                    discount = coupon['discount']
-                    disprice = 0 if (price - discount) < 0 else (price - discount)
-
-                if coupon['distype'] == 2:
-                    disprice = round(price * coupon['discount'] / 100)
 
             freight = 1000 if item_type == 2 and price < 9900 else 0
             fee = disprice + freight
@@ -458,7 +211,7 @@ class OrderHandler(AuthHandler):
                     'nonce_str': uuid.uuid4().hex,
                     'body': title,
                     'detail': '公众号扫码订单',
-                    'attach': coupon_id if coupon_id else '',
+                    'attach': '',
                     'out_trade_no': order_no,
                     'total_fee': fee,
                     'spbill_create_ip': self.request.remote_ip,
@@ -508,100 +261,6 @@ class OrderHandler(AuthHandler):
             log.error(exc)
             return self.write(error(ErrorCode.DBERR))
 
-    def get_combo_info(self, combo_id):
-        # Get combo info
-        query = {'id': combo_id}
-        filters = {'_id': 0, 'created': 0, 'modified': 0}
-
-        try:
-            return self.db[_DATABASE].combo.find_one(query, filters)
-        except Exception as exc:
-            log.error(exc)
-            return self.write(error(ErrorCode.DBERR))
-
-    def get_order(self, uid, order_type=1):
-        query = {'uid': uid, 'type': order_type}
-        filters = {'_id': 0, 'combo_idx': 1, 'times': 1, 'created': 1}
-        try:
-            return self.db[_DATABASE].order.find_one(query, filters)
-        except Exception as exc:
-            log.error(exc)
-            return self.write(error(ErrorCode.DBERR))
-
-    def get_order_info(self, uid, combo_id):
-        query = {'uid': uid, 'combo_id': combo_id, 'status': {'$in': [1, 2, 3]}}
-        filters = {'_id': 0, 'times': 1, 'created': 1, 'combo_idx': 1, 'chgtime': 1}
-        sort = [("id", -1)]
-
-        try:
-            return self.db[_DATABASE].order.find(query, filters).sort(sort).to_list(None)
-        except Exception as exc:
-            log.error(exc)
-            return self.write(error(ErrorCode.DBERR))
-
-    def get_combo_order(self, uid, combo_id, order_type=1):
-        query = {'uid': uid, 'combo_id': combo_id, 'type': order_type}
-        filters = {'_id': 0}
-        try:
-            return self.db[_DATABASE].order.find_one(query, filters)
-        except Exception as exc:
-            log.error(exc)
-            return self.write(error(ErrorCode.DBERR))
-
-    def get_previous_order(self, uid):
-        query = {'uid': uid, 'type': {'$in': [1, 2, 4]}}
-        filters = {'_id': 0, 'orderno': 1, 'combo_id': 1, 'combo_idx': 1, 'name': 1, 'mobile': 1, 'address': 1}
-        sort = [("id", -1)]
-
-        try:
-            return self.db[_DATABASE].order.find(query, filters).sort(sort).limit(1).to_list(1)
-        except Exception as exc:
-            log.error(exc)
-            return self.write(error(ErrorCode.DBERR))
-
-    def get_previous_items(self, order_no):
-        query = {'orderno': order_no}
-        filters = {"_id": 0, 'title': 1, 'img': 1, 'packw': 1, 'packs': 1}
-
-        try:
-            return self.db[_DATABASE].order_item.find(query, filters).to_list(None)
-        except Exception as exc:
-            log.error(exc)
-            return self.write(error(ErrorCode.DBERR))
-
-    @staticmethod
-    def get_combo_price(combo, combo_idx):
-        prices = combo['prices']
-        if not isinstance(prices, list) or not prices:
-            log.error("combo prices error")
-            return 0
-        try:
-            return prices[combo_idx]
-        except IndexError:
-            log.error("price: combo_idx out of range")
-            raise
-
-    @staticmethod
-    def validate_items(items_list):
-        for item in items_list:
-            match = re.match(r"^(\d+)\:(\d+)$", item)
-            if not match:
-                return False
-        return True
-
-    def get_item(self, item_id):
-        query = {'id': item_id}
-        filters = {'_id': 0,
-                   'title': 1,
-                   'imgs': 1,
-                   'packw': 1}
-        sort = [('id', -1)]
-        try:
-            return self.db[_DATABASE].issue_item.find(query, filters).sort(sort).limit(1).to_list(1)
-        except Exception as exc:
-            log.error(exc)
-            return self.write(error(ErrorCode.DBERR))
-
     def get_recom_item(self, item_id):
         query = {'id': item_id}
         filters = {'_id': 0,
@@ -611,32 +270,6 @@ class OrderHandler(AuthHandler):
                    'type': 1,
                    'fid': 1,
                    'farm': 1}
-        sort = [('id', -1)]
-        try:
-            return self.db[_DATABASE].recom_item.find(query, filters).sort(sort).limit(1).to_list(1)
-        except Exception as exc:
-            log.error(exc)
-            return self.write(error(ErrorCode.DBERR))
-
-    def get_item_price(self, item_id):
-        query = {'id': item_id}
-        filters = {'_id': 0,
-                   'price': 1,
-                   'title': 1,
-                   'img': 1}
-        sort = [('id', -1)]
-        try:
-            return self.db[_DATABASE].item.find(query, filters).sort(sort).limit(1).to_list(1)
-        except Exception as exc:
-            log.error(exc)
-            return self.write(error(ErrorCode.DBERR))
-
-    def get_recom_price(self, item_id):
-        query = {'id': item_id}
-        filters = {'_id': 0,
-                   'price': 1,
-                   'title': 1,
-                   'img': 1}
         sort = [('id', -1)]
         try:
             return self.db[_DATABASE].recom_item.find(query, filters).sort(sort).limit(1).to_list(1)
@@ -782,87 +415,6 @@ class OrderHandler(AuthHandler):
 
             items.append(item)
 
-        yield self.insert_items(items)
-
-    @coroutine
-    def add_temp_items(self, order_no, items_list):
-        items = []
-        for raw_item in items_list:
-            match = re.match(r"^(\d+)\:(\d+)$", raw_item)
-            item_id, item_amount = int(match.group(1)), int(match.group(2))
-            item_obj = yield self.get_recom_item(item_id)
-            if not item_obj:
-                raise ItemNotFoundError(item_id)
-
-            item_obj = item_obj[0]
-
-            title = item_obj['title']
-            try:
-                img = item_obj['imgs'].pop()
-            except IndexError:
-                img = ''
-            packw = item_obj['packw']
-            packs = item_amount
-            oid = mongo_uid(_DATABASE, 'temp_items')
-            order_no = order_no
-            now = round(time.time() * 1000)
-
-            item = {'id': oid,
-                    'orderno': order_no,
-                    'siid': item_id,
-                    'title': title,
-                    'img': img,
-                    'packw': packw,
-                    'packs': packs,
-                    'created': now,
-                    'modified': now
-                    }
-
-            items.append(item)
-
-        try:
-            return self.db[_DATABASE].temp_items.insert(items)
-        except Exception as exc:
-            log.error(exc)
-            return self.write(error(ErrorCode.DBERR))
-
-    @coroutine
-    def add_items(self, order_no, items_list):
-        items = []
-        for raw_item in items_list:
-            match = re.match(r"^(\d+)\:(\d+)$", raw_item)
-            item_id, item_amount = int(match.group(1)), int(match.group(2))
-            item_obj = yield self.get_item(item_id)
-            if not item_obj:
-                raise ItemNotFoundError(item_id)
-
-            item_obj = item_obj[0]
-
-            title = item_obj['title']
-            try:
-                img = item_obj['imgs'].pop()
-            except IndexError:
-                img = ''
-            packw = item_obj['packw']
-            packs = item_amount
-            oid = mongo_uid(_DATABASE, 'order_item')
-            order_no = order_no
-            now = round(time.time() * 1000)
-
-            item = {'id': oid,
-                    'orderno': order_no,
-                    'siid': item_id,
-                    'title': title,
-                    'img': img,
-                    'packw': packw,
-                    'packs': packs,
-                    'created': now,
-                    'modified': now
-                    }
-
-            items.append(item)
-            yield self.db[_DATABASE].issue_item.find_and_modify({'id': item_id},
-                                                                {'$inc': {'sales': packs, 'remains': -packs * packw}})
         yield self.insert_items(items)
 
     @coroutine
