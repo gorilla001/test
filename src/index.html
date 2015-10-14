@@ -239,7 +239,7 @@
 <!--我的地址列表-->
 <script type="text/x-template" id="address-template">
     <div id="p-address" class="f-z">
-        <section class="block add">
+        <section class="block add" v-if="address_list.length < 5">
             <a class="row btn" v-link="{ path: '/address/0'}">
                 <img src="static/img/add.png"/>
                 <span>添加地址</span>
