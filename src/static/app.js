@@ -133,7 +133,7 @@ var fun = {
         return false;
     },
     get_address_list_ajax: function (callFun) {
-        Vue.http.get('/api/address/list', {}, function (data, status, request) {
+        Vue.http.get('/api/address', {}, function (data, status, request) {
             fun.errcodeFun(data);
             fun.set_address_list(data);
             callFun(data)
@@ -741,7 +741,7 @@ var AddressDetail = Vue.extend({
         },
         //保存地址
         save: function () {
-            this.$http.post('/api/address/save', this.address, function (data, status, request) {
+            this.$http.post('/api/address', this.address, function (data, status, request) {
                 if (data && data.errcode) {
                     alert(data.errmsg);
                     return;
@@ -847,7 +847,7 @@ var App = Vue.extend({
                 //args.on && this.$emit(args.on, args.param) && this.$broadcast(args.on, args.param);
                 return false;
             }
-            this.$http.get('/api/address/list', {}, function (data, status, request) {
+            this.$http.get('/api/address', {}, function (data, status, request) {
                 fun.errcodeFun(data);
 
                 var address_list = data;
