@@ -48,19 +48,21 @@ fis.match('/bower_components/**/*.{js,css}', {
     release: '/static/$0'
 });
 
-fis.match('*.{scss,less,map}', {
-    // 设置 release 为 FALSE，不再产出此文件
-    //release: false
-});
+//fis.match('*.{scss,less,map}', {
+//fis.match('/static/style/**/*.scss}', {
+//    release: false
+//});
 
 fis.match('/static/style/*.scss', {
+//fis.match('/static/style/app.scss', {
     parser: fis.plugin('sass', {}), //属性 parser 表示了插件的类型
     rExt: '.css',
     postprocessor: fis.plugin('autoprefixer', {
         // detail config (https://github.com/postcss/autoprefixer#browsers)
         "browsers": ["Android >= 2.3", "ChromeAndroid > 1%", "iOS >= 4"],
         "cascade": true
-    })
+    }),
+    optimizer: fis.plugin('clean-css')
 });
 
 fis.match('/static/styles/*.less', {
@@ -183,7 +185,7 @@ fis.media('prod')
         //preprocessor: fis.plugin('annotate'),
         optimizer: fis.plugin('uglify-js')
     })
-    .match('**.css', {
-        optimizer: fis.plugin('clean-css')
-    });
+    //.match('**.css', {
+    //    optimizer: fis.plugin('clean-css')
+    //});
 
