@@ -277,6 +277,19 @@ class OrderHandler(AuthHandler):
             log.error(exc)
             return self.write(error(ErrorCode.DBERR))
 
+    def get_item_price(self, item_id):
+        query = {'id': item_id}
+        filters = {'_id': 0,
+                   'price': 1,
+                   'title': 1,
+                   'img': 1}
+        sort = [('id', -1)]
+        try:
+            return self.db[_DATABASE].item.find(query, filters).sort(sort).limit(1).to_list(1)
+        except Exception as exc:
+            log.error(exc)
+            return self.write(error(ErrorCode.DBERR))
+
     def create_order(self, oid, order_no, combo_order_no, order_type, item_type, price, status, times, fid, farm,
                      combo, combo_idx, name, mobile, address, memo, title=None):
         oid = oid
