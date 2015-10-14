@@ -23,6 +23,12 @@
     padding: 0 px2rem(20);
     margin-bottom: $c-bottom-guide-height;
 
+    display: flex;
+    flex-wrap: wrap;
+
+    justify-content: space-between;
+    //justify-content: center;
+
     & > a {
       //display: block;
       display: inline-block;
@@ -405,6 +411,7 @@
     text-align: center;
     .btn {
       width: px2rem(584);
+      max-width: 92%;
       height: px2rem(74);
       font-size: px2rem(30);
       background-color: #E56046;
