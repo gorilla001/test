@@ -126,7 +126,7 @@
         </div>
         <c-bottom-buy></c-bottom-buy>
 
-        <div class="show_img" v-show="show_qr_code" v-on="click:show_qr_code=false">
+        <div class="show_img c-modal c-modal-active" v-show="show_qr_code" v-on="click:show_qr_code=false">
             <div class="box">
                 <img v-attr="src:'data:image/png;base64,'+data.qrcode"/>
 
