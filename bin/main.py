@@ -28,7 +28,6 @@ YOUCAI_WXPAY_CONF = WXPAY_CONF['youcai']
 class IndexHandler(AuthHandler):
     @coroutine
     def get(self):
-        self.xsrf_token
         code = self.get_argument('code', None)
         if code:
             # return self.write(error(ErrorCode.PARAMERR, '需要code参数'))
