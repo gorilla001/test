@@ -69,6 +69,7 @@ class SaveHandler(AuthHandler):
                                     'bur': '',
                                     'default': True,
                                     'created': now})
+                yield self.db['hamlet'].address.insert(address_doc)
             return self.write({
                 'address': city + region + address
             })
