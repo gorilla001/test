@@ -2,8 +2,11 @@
  * Created by aidenZou on 15/9/19.
  */
 
+//由于使用了bower，有很多非必须资源。通过set project.files对象指定需要编译的文件夹和引用的资源
+//fis.set('project.files', ['page/**','map.json','modules/**','lib']);
+
 // MD5
-fis.match('*.{js,css}', {
+fis.match('*.{js,css,scss}', {
     useHash: true
 });
 
@@ -20,11 +23,6 @@ fis.set('project.ignore', [
 ]);
 
 fis.match('bower.json', {
-    // 设置 release 为 FALSE，不再产出此文件
-    release: false
-});
-
-fis.match('*.{scss,less,map}', {
     // 设置 release 为 FALSE，不再产出此文件
     release: false
 });
@@ -50,16 +48,34 @@ fis.match('/bower_components/**/*.{js,css}', {
     release: '/static/$0'
 });
 
-fis.match('/static/styles/*.scss', {
-    parser: fis.plugin('scss', {}), //属性 parser 表示了插件的类型
-    rExt: '.css'
+fis.match('*.{scss,less,map}', {
+    // 设置 release 为 FALSE，不再产出此文件
+    //release: false
+});
+
+fis.match('/static/style/*.scss', {
+    parser: fis.plugin('sass', {}), //属性 parser 表示了插件的类型
+    rExt: '.css',
+    postprocessor: fis.plugin('autoprefixer', {
+        // detail config (https://github.com/postcss/autoprefixer#browsers)
+        "browsers": ["Android >= 2.3", "ChromeAndroid > 1%", "iOS >= 4"],
+        "cascade": true
+    })
 });
 
 fis.match('/static/styles/*.less', {
     parser: fis.plugin('less'), // invoke `fis-parser-less`,
-    rExt: '.css'
+    rExt: '.css',
+    postprocessor: fis.plugin('autoprefixer')
 });
 
+//fis.match('*.css', {
+//    postprocessor: fis.plugin('autoprefixer', {
+//        // detail config (https://github.com/postcss/autoprefixer#browsers)
+//        "browsers": ["Android >= 2.3", "ChromeAndroid > 1%", "iOS >= 4"],
+//        "cascade": true
+//    })
+//});
 
 //fis.match('/src/bower_components/**/*', {
 //    //release: '/static/bower_components/$0'

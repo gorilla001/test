@@ -1,30 +1,10 @@
 @charset "UTF-8";
 
+@import "base/vars";
 @import "base/normalize";
 @import "base/base";
 
 //@import "component/grid/style";
-
-// 主色调
-$c_main: #11C258;
-$c_text_1: #AEAEAE;
-$c_text_2: #3B3B3B;
-$c_text_3: #9F9F9F;
-$c_text_4: #282828;
-$c_text_5: #e4e4e4;
-$c_text_6: #7D7D7D;
-
-$c_page_bg_1: #ECECEC;
-$c_page_bg_1: #EAEEEE;
-
-$c_bg_1: #f7f7f7;
-$c_bg_2: #AEAEAE;
-
-//底部购物车高度
-$c-bottom-buy-height: px2rem(114);
-
-//底部引导高度
-$c-bottom-guide-height: px2rem(90);
 
 body {
   //font-size: 12px;
