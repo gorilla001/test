@@ -93,7 +93,7 @@ var fun = {
         if (data.errcode) {
             switch (data.errcode) {
                 case 2001:  //用户未登录
-                    alert(data.errmsg);
+                    //alert(data.errmsg);
                     //router.replace({
                     router.go({
                         name: 'login',
