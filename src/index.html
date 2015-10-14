@@ -227,7 +227,7 @@
                         <span class="send-sms" v-class="activity : !has_disabled_send_smscode" v-on="click:sendSms()">(% text %)</span>
                     </div>
                     <div>
-                        <input type="text" v-model="smscode" maxlength="6" placeholder="验证码"/>
+                        <input type="tel" v-model="smscode" maxlength="6" placeholder="验证码"/>
                     </div>
                 </div>
                 <input type="button" class="submit" v-on="click:submit()" value="登录"/>
@@ -245,9 +245,9 @@
                 <span>添加地址</span>
             </a>
         </section>
-        <section class="block row-r item-list" v-repeat="address_list" v-class="activity : default"
+        <section class="block box-2 item-list" v-repeat="address_list" v-class="activity : default"
                  v-on="click:selectAddress($data, $index)">
-            <div class="row">
+            <div class="box-2">
                 <img class="default" src="static/img/default.png"/>
                 <!--<a class="btn" v-link="{ path: '/address/' + id}">-->
                 <div class="info">
