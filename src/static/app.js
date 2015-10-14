@@ -159,17 +159,6 @@ var fun = {
     }
 };
 
-//new Vue({
-//
-//    http: {
-//        root: '/root',
-//        headers: {
-//            Authorization: 'Basic YXBpOnBhc3N3b3Jk'
-//        }
-//    }
-//
-//})
-
 //var Foo = Vue.extend({
 //    template: '<div class="foo">' +
 //    '<h2>This is Foo!</h2>' +
@@ -179,14 +168,6 @@ var fun = {
 
 //var Load = Vue.extend({
 //    template: '<div class="load">加载中</div>'
-//});
-
-//底部购买
-//Vue.component('c-bottom-buy', {
-//    data:{
-//        count:1
-//    },
-//    template: '<div class="c-bottom-buy row-1"><div><button class="btn" v-on="click: count++">-</button><span class="count">(%count%)</span><button class="btn" v-on="click: count++">+</button></div><a class="btn add">加入购物车</a></div>'
 //});
 
 //背景遮罩
@@ -338,34 +319,6 @@ var Index = Vue.extend({
 
     }
 });
-
-//Vue.component('demo-grid', {
-//    template: '#grid-template',
-//    replace: true,
-//    props: ['data', 'columns', 'filter-key'],
-//    data: function () {
-//        return {
-//            data: null,
-//            columns: null,
-//            sortKey: '',
-//            filterKey: '',
-//            reversed: {}
-//        }
-//    },
-//    compiled: function () {
-//        // initialize reverse state
-//        var self = this
-//        this.columns.forEach(function (key) {
-//            self.reversed.$add(key, false)
-//        })
-//    },
-//    methods: {
-//        sortBy: function (key) {
-//            this.sortKey = key
-//            this.reversed[key] = !this.reversed[key]
-//        }
-//    }
-//})
 
 //单品详情
 var RecomItem = Vue.extend({
@@ -1017,3 +970,32 @@ router.start(App, '#app');
 //        //}
 //    }
 //},
+
+
+//Vue.component('demo-grid', {
+//    template: '#grid-template',
+//    replace: true,
+//    props: ['data', 'columns', 'filter-key'],
+//    data: function () {
+//        return {
+//            data: null,
+//            columns: null,
+//            sortKey: '',
+//            filterKey: '',
+//            reversed: {}
+//        }
+//    },
+//    compiled: function () {
+//        // initialize reverse state
+//        var self = this
+//        this.columns.forEach(function (key) {
+//            self.reversed.$add(key, false)
+//        })
+//    },
+//    methods: {
+//        sortBy: function (key) {
+//            this.sortKey = key
+//            this.reversed[key] = !this.reversed[key]
+//        }
+//    }
+//})
