@@ -23,7 +23,7 @@ class HomeHandler(AuthHandler):
             return
 
         try:
-            recom_items = yield self.db['youcai'].recom_item.find({'remains': {'$gt': 0}, 'status': 1}, {'_id': 0}).sort([('id', -1)]).skip(
+            recom_items = yield self.db['youcai'].recom_item.find({'remains': {'$gt': 0}, 'status': 1}, {'_id': 0}).sort([('type', -1), ('id', -1)]).skip(
                 (page - 1) * length).limit(length).to_list(length)
             res = {
                 'recom_item_list': []
