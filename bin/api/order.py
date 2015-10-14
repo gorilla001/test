@@ -52,9 +52,9 @@ class OrderHandler(AuthHandler):
             return self.write(error(ErrorCode.LOGINERR))
 
         try:
-            combo_id = int(self.get_argument('combo_id', None) or 0)  # 套餐订单，选菜订单必传，套餐订单不传items和extras
+            combo_id = int(self.get_argument('combo_id', 0))  # 套餐订单，选菜订单必传，套餐订单不传items和extras
             order_type = int(self.get_argument('type'))  # 订单类型
-            combo_idx = int(self.get_argument('combo_idx', None) or 0)  # 子订单序号
+            combo_idx = int(self.get_argument('combo_idx', 0))  # 子订单序号
             raw_items = self.get_argument('items', None)  # 选菜订单必传，格式：id1:amount1,id2:amount2...
             raw_extras = self.get_argument('extras', None)  # 选菜订单可选，单品订单必传，格式：id1:amount1,id2:amount2...
             spares = self.get_argument('spares', None)  # 备选菜,格式：id1, id2, id3...
@@ -107,9 +107,10 @@ class OrderHandler(AuthHandler):
                     times = 1
                     title = combo['title']  # used for alipay only
                     item_type = 1
-
+                    fid = combo['fid']
+                    farm = combo['farm']
                     yield self.create_order(oid, order_no, combo_order_no, order_type, item_type, price, status, times,
-                                            combo, combo_idx, name, mobile, address, memo)
+                                            fid, farm, combo, combo_idx, name, mobile, address, memo)
 
                     items_list = raw_items.split(',')
                     if not self.validate_items(items_list):
@@ -136,7 +137,8 @@ class OrderHandler(AuthHandler):
                     times = 1
                     title = combo['title']  # used for alipay only
                     item_type = 1
-
+                    fid = combo['fid']
+                    farm = combo['farm']
                     raw_extras_list = raw_extras.split(',')
                     if not self.validate_items(raw_extras_list):
                         log.error("raw items format error")
@@ -149,7 +151,7 @@ class OrderHandler(AuthHandler):
                         return self.write(error(ErrorCode.NODATA, '要购买的菜品在数据库找不到'))
 
                     yield self.create_order(oid, order_no, combo_order_no, order_type, item_type, price, status, times,
-                                            combo, combo_idx, name, mobile, address, memo)
+                                            fid, farm, combo, combo_idx, name, mobile, address, memo)
 
                     try:
                         yield self.add_extras(order_no, raw_extras_list)
@@ -261,9 +263,11 @@ class OrderHandler(AuthHandler):
             price = 0
             status = 1
             item_type = 1
+            fid = combo['fid']
+            farm = combo['farm']
 
             yield self.create_order(oid, order_no, combo_order_no, order_type, item_type, price, status, times,
-                                    combo, combo_idx, name, mobile, address, memo)
+                                    fid, farm, combo, combo_idx, name, mobile, address, memo)
 
             raw_items_list = raw_items.split(',')
             if not self.validate_items(raw_items_list):
@@ -282,12 +286,15 @@ class OrderHandler(AuthHandler):
 
             oid = mongo_uid(_DATABASE, 'order')
             order_no = gen_orderno(oid)  # used for alipay also
-            combo_order_no = 0
+            # combo_order_no = 0
             order_type = 3
             status = 0
             times = 0
             item_type = 2
+            fid = 0
+            fname = ''
 
+            farm_and_items = {}
             raw_extras_list = raw_extras.split(',')
             for item in raw_extras_list:
                 match = re.match(r"^(\d+)\:(\d+)$", item)
@@ -309,6 +316,22 @@ class OrderHandler(AuthHandler):
 
                     yield self.add_seckill_item(self.userid, item_id)
                     self.cache.today(ckey, True)
+                    fid = item_obj['fid']
+                    fname = item_obj['farm']
+                if recom_type == 1:  # 普通单品
+                    farm_id = int(item_obj['fid'])
+                    farm = str(item_obj['farm'])
+                    try:
+                        farm_and_items[(farm_id, farm)].append(item)
+                    except KeyError:
+                        farm_and_items[(farm_id, farm)] = [item]
+            #         farm_id_list.append(fid)
+
+            if len(farm_and_items) == 1:
+                fid = list(farm_and_items.keys())[0][0]
+                fname = list(farm_and_items.keys())[0][1]
+            # if len(set(farm_id_list)) > 1:
+            #     fid = 0
             try:
                 price = yield self.get_extras_price(raw_extras_list)
             except ItemNotFoundError as exc:
@@ -317,14 +340,67 @@ class OrderHandler(AuthHandler):
 
             title = yield self.get_extras_title(raw_extras_list)
             combo, combo_idx = None, None
-            yield self.create_order(oid, order_no, combo_order_no, order_type, item_type, price, status, times,
-                                    combo, combo_idx, name, mobile, address, memo, title)
+            combo_order_no = 0
+            yield self.create_order(oid, order_no, combo_order_no, order_type, item_type, price, status, times, fid,
+                                    fname, combo, combo_idx, name, mobile, address, memo, title)
 
             try:
                 yield self.add_extras(order_no, raw_extras_list)
             except ItemNotFoundError as exc:
                 log.error(exc)
                 return self.write(error(ErrorCode.NODATA, '要购买的菜品在数据库找不到'))
+
+            if fid == 0:
+                for (farm_id, farm), items in farm_and_items.items():
+                    con = order_no
+                    order_type = 3
+                    item_type = 2
+                    status = 0
+                    times = 0
+                    fid = farm_id
+                    farm = farm
+                    combo, combo_idx = None, None
+                    try:
+                        split_price = yield self.get_extras_price(items)
+                    except ItemNotFoundError as exc:
+                        log.error(exc)
+                        return self.write(error(ErrorCode.NODATA, '要购买的菜品在数据库找不到'))
+
+                    split_title = yield self.get_extras_title(items)
+
+                    items_list = []
+                    for item in items:
+                        match = re.match(r"^(\d+)\:(\d+)$", item)
+                        id, amount = int(match.group(1)), int(match.group(2))
+                        obj = yield self.get_recom_item(id)
+                        if not obj:
+                            raise ItemNotFoundError(id)
+
+                        obj = obj[0]
+
+                        title = obj['title']
+                        try:
+                            img = obj['imgs'].pop()
+                        except IndexError:
+                            img = ''
+                        packw = obj['packw']
+                        packs = amount
+                        now = round(time.time() * 1000)
+
+                        item = {'siid': id,
+                                'title': title,
+                                'img': img,
+                                'packw': packw,
+                                'packs': packs,
+                                'created': now,
+                                'modified': now
+                                }
+
+                        items_list.append(item)
+
+                    yield self.create_temp_order(con, order_type,item_type, split_price, status, times, fid, farm,
+                                                 combo, combo_idx, name, mobile, address, memo, items_list, split_title)
+
         else:
             return self.write(error(ErrorCode.PARAMERR))
 
@@ -392,8 +468,7 @@ class OrderHandler(AuthHandler):
                 params.update({'sign': wxpay_sign(params)})
                 try:
                     xml = xmltodict.unparse({'xml': params}, full_document=False)
-                    resp = yield AsyncHTTPClient().fetch(YOUCAI_WXPAY_CONF['url'] + '/pay/unifiedorder', method='POST',
-                                                         body=xml)
+                    resp = yield AsyncHTTPClient().fetch(YOUCAI_WXPAY_CONF['url'] + '/pay/unifiedorder', method='POST', body=xml)
                     ret = xmltodict.parse(resp.body.decode())['xml']
                     if ret['return_code'] == 'SUCCESS' and ret['result_code'] == 'SUCCESS':
                         sign = ret.pop('sign')
@@ -533,7 +608,9 @@ class OrderHandler(AuthHandler):
                    'title': 1,
                    'imgs': 1,
                    'packw': 1,
-                   'type': 1}
+                   'type': 1,
+                   'fid': 1,
+                   'farm': 1}
         sort = [('id', -1)]
         try:
             return self.db[_DATABASE].recom_item.find(query, filters).sort(sort).limit(1).to_list(1)
@@ -567,10 +644,57 @@ class OrderHandler(AuthHandler):
             log.error(exc)
             return self.write(error(ErrorCode.DBERR))
 
-    def create_order(self, oid, order_no, combo_order_no, order_type, item_type, price, status, times,
+    def create_order(self, oid, order_no, combo_order_no, order_type, item_type, price, status, times, fid, farm,
                      combo, combo_idx, name, mobile, address, memo, title=None):
         oid = oid
         order_no = order_no
+        combo_order_no = combo_order_no
+        order_type = order_type  # 1 for combo order
+        item_type = item_type
+        uid = self.userid
+        combo_idx = combo_idx
+        if not combo:
+            combo_id = None
+            title = title
+            img = ''
+            year = None
+            issue_no = None
+        else:
+            combo_id = combo['id']
+            title = combo['title']
+            img = combo['img']
+            year = combo['year']
+            issue_no = combo['issue_no']
+        price = price
+        times = times
+        name = name
+        mobile = mobile
+        address = address
+        paytype = 0
+        status = status  # 0 means haven't payed yet
+        fid = fid
+        farm = farm
+
+        now = round(time.time() * 1000)
+        if order_type == 2:
+            chgtime = {"0": now, "1": now}
+        else:
+            chgtime = {"0": now}
+
+        kwargs = dict(id=oid, orderno=order_no, con=combo_order_no, uid=uid,
+                      combo_id=combo_id, combo_idx=combo_idx, coupon_id=0, fid=fid, farm=farm,
+                      title=title, img=img, year=year, issue_no=issue_no, type=order_type, item_type=item_type,
+                      price=price, times=times, name=name, mobile=mobile, address=address, memo=memo,
+                      paytype=paytype, status=status, chgtime=chgtime, created=now, modified=now)
+
+        try:
+            return self.db[_DATABASE].order.insert(kwargs)
+        except Exception as exc:
+            log.error(exc)
+            return self.write(error(ErrorCode.DBERR))
+
+    def create_temp_order(self, combo_order_no, order_type, item_type, price, status, times, fid, farm,
+                          combo, combo_idx, name, mobile, address, memo, items_list, title=None):
         combo_order_no = combo_order_no
         order_type = order_type  # 1 for combo order
         item_type = item_type
@@ -602,14 +726,14 @@ class OrderHandler(AuthHandler):
         else:
             chgtime = {"0": now}
 
-        kwargs = dict(id=oid, orderno=order_no, con=combo_order_no, uid=uid,
-                      combo_id=combo_id, combo_idx=combo_idx, coupon_id=0,
+        kwargs = dict(con=combo_order_no, uid=uid,
+                      combo_id=combo_id, combo_idx=combo_idx, coupon_id=0, fid=fid, farm=farm, order_items=items_list,
                       title=title, img=img, year=year, issue_no=issue_no, type=order_type, item_type=item_type,
                       price=price, times=times, name=name, mobile=mobile, address=address, memo=memo,
                       paytype=paytype, status=status, chgtime=chgtime, created=now, modified=now)
 
         try:
-            return self.db[_DATABASE].order.insert(kwargs)
+            return self.db[_DATABASE].temp_order.insert(kwargs)
         except Exception as exc:
             log.error(exc)
             return self.write(error(ErrorCode.DBERR))
@@ -659,6 +783,48 @@ class OrderHandler(AuthHandler):
             items.append(item)
 
         yield self.insert_items(items)
+
+    @coroutine
+    def add_temp_items(self, order_no, items_list):
+        items = []
+        for raw_item in items_list:
+            match = re.match(r"^(\d+)\:(\d+)$", raw_item)
+            item_id, item_amount = int(match.group(1)), int(match.group(2))
+            item_obj = yield self.get_recom_item(item_id)
+            if not item_obj:
+                raise ItemNotFoundError(item_id)
+
+            item_obj = item_obj[0]
+
+            title = item_obj['title']
+            try:
+                img = item_obj['imgs'].pop()
+            except IndexError:
+                img = ''
+            packw = item_obj['packw']
+            packs = item_amount
+            oid = mongo_uid(_DATABASE, 'temp_items')
+            order_no = order_no
+            now = round(time.time() * 1000)
+
+            item = {'id': oid,
+                    'orderno': order_no,
+                    'siid': item_id,
+                    'title': title,
+                    'img': img,
+                    'packw': packw,
+                    'packs': packs,
+                    'created': now,
+                    'modified': now
+                    }
+
+            items.append(item)
+
+        try:
+            return self.db[_DATABASE].temp_items.insert(items)
+        except Exception as exc:
+            log.error(exc)
+            return self.write(error(ErrorCode.DBERR))
 
     @coroutine
     def add_items(self, order_no, items_list):
