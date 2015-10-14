@@ -49,7 +49,8 @@ var util = {
 var app = {
     //apiDomain: 'http://192.168.1.100:9100'
     apiDomain: 'https://api.shequcun.com',
-    _xsrf: util.getCookie('_xsrf'),
+    //_xsrf: util.getCookie('_xsrf'),
+    _xsrf: $('input[name="_xsrf"]').val(),
     uid: util.getCookie('uid'),
     user: {}
 };
