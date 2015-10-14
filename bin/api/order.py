@@ -277,7 +277,7 @@ class OrderHandler(AuthHandler):
             log.error(exc)
             return self.write(error(ErrorCode.DBERR))
 
-    def get_item_price(self, item_id):
+    def get_recom_price(self, item_id):
         query = {'id': item_id}
         filters = {'_id': 0,
                    'price': 1,
@@ -285,7 +285,7 @@ class OrderHandler(AuthHandler):
                    'img': 1}
         sort = [('id', -1)]
         try:
-            return self.db[_DATABASE].item.find(query, filters).sort(sort).limit(1).to_list(1)
+            return self.db[_DATABASE].recom_item.find(query, filters).sort(sort).limit(1).to_list(1)
         except Exception as exc:
             log.error(exc)
             return self.write(error(ErrorCode.DBERR))
