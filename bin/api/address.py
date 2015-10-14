@@ -18,7 +18,7 @@ class AddressHandler(AuthHandler):
                 {'uid': self.userid},
                 {'_id': 0, 'id': 1, 'name': 1, 'mobile': 1, 'city': 1, 'region': 1, 'address': 1, 'default': 1}
             ).sort([('default', -1), ('id', -1)]).limit(5).to_list(5)
-            self.write({'addresses': docs})
+            self.write(docs)
         except Exception as e:
             log.error(e)
             self.write(error(ErrorCode.DBERR))
