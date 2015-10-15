@@ -502,7 +502,7 @@ var Buy = Vue.extend({
                 //console.log(data);
 
                 //去支付
-                var url = '/pay?orderno=' + data.orderno + '&type=1';
+                var url = '/pay/wx?orderno=' + data.orderno + '&type=1';
                 //url += '&url=' + escape(window.location.host + '/#!pay_result');
                 //console.log(url)
                 window.location.href = url;

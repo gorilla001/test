@@ -162,7 +162,7 @@ class YoucaiWeb(Application):
         handlers = [
             (r'/', IndexHandler),  # 首页
             (r'/wx', WxHandler),  # 微信授权页面
-            (r'/pay', PayHandler),  # 支付
+            (r'/pay/wx', PayHandler),  # 支付
             (r'/pay_test', PayWeixinTestHandler),  # 微信支付测试页
             (r'/api/address', address.AddressHandler),
             (r'/api/recom_item', recom_item.DetailHandler),
