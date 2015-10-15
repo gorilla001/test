@@ -234,7 +234,7 @@ class OrderHandler(AuthHandler):
                                 'signType': 'MD5',
                             }
                             ret_sign = wxpay_sign(pay_params)
-                            pay_params.update({'signSign': ret_sign})
+                            pay_params.update({'paySign': ret_sign})
                             result.update({'wxpay': pay_params})
                 except Exception as e:
                     log.error(e)

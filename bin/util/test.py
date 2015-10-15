@@ -54,9 +54,10 @@ def make_order(openid, title, order_no, fee, remote_ip):
                     'timeStamp': round(time.time()),
                     'nonceStr': uuid.uuid4().hex,
                     'package': 'prepay_id={prepay_id}'.format(prepay_id=ret['prepay_id']),
-                    'signType': 'MD5',
-                    'paySign': sign
+                    'signType': 'MD5'
                 }
+                ret_sign = wxpay_sign(pay_params)
+                pay_params.update({'paySign': ret_sign})
         else:
             log.error(ret)
 
