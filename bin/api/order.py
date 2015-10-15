@@ -71,7 +71,7 @@ class OrderHandler(AuthHandler):
             return self.write(error(ErrorCode.PARAMERR))
 
         oid = mongo_uid(_DATABASE, 'order')
-        order_no = gen_orderno(oid)  # used for alipay also
+        order_no = gen_orderno(oid, short=True)  # used for alipay also
         # combo_order_no = 0
         order_type = 3
         status = 0
