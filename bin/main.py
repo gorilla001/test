@@ -130,9 +130,8 @@ class PayHandler(AuthHandler):
         if not order:
             # 订单不存在
             self.redirect('/')
+        # self.redirect('/#!pay_result')
         # return;
-        self.redirect('/#!pay_result')
-        return;
 
         # import random
         # 支付参数

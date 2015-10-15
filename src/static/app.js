@@ -498,13 +498,13 @@ var Buy = Vue.extend({
                 store.remove('cart');
 
                 //TODO 去支付
-                console.log('去支付');
-                console.log(data);
+                //console.log('去支付');
+                //console.log(data);
 
                 //去支付
                 var url = '/pay?orderno=' + data.orderno + '&type=1';
                 //url += '&url=' + escape(window.location.host + '/#!pay_result');
-                console.log(url)
+                //console.log(url)
                 window.location.href = url;
 
                 //router.go({
