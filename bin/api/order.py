@@ -232,8 +232,9 @@ class OrderHandler(AuthHandler):
                                 'nonceStr': uuid.uuid4().hex,
                                 'package': 'prepay_id={prepay_id}'.format(prepay_id=ret['prepay_id']),
                                 'signType': 'MD5',
-                                'paySign': sign,
                             }
+                            ret_sign = wxpay_sign(pay_params)
+                            pay_params.update({'signSign': ret_sign})
                             result.update({'wxpay': pay_params})
                 except Exception as e:
                     log.error(e)
