@@ -187,7 +187,7 @@ class OrderHandler(AuthHandler):
                 yield self.create_temp_order(con, order_type,item_type, split_price, status, times, fid, farm,
                                              combo, combo_idx, name, mobile, address, memo, items_list, split_title)
 
-        result = {'orderno': order_no}
+        result = {'orderno': str(order_no)}
         if price != 0:
             disprice = price
 
