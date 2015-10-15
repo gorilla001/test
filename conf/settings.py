@@ -28,7 +28,7 @@ WXPAY_CONF = {
     'youcai': {
         'appid': 'wx7614397bfac00107',
         'secret': 'fddc0cbd357acc9536df19aaa389ab82',
-        'key': 'b631c82cf1a741d68dc9c5cb2b715b98',
+        'key': 'b891996f692e467790ad68a25cb8c8ed',
         'mchid': '1273891701',
         'url': 'https://api.mch.weixin.qq.com',
         'notify': 'https://api.shequcun.com/wxpay/notify'
