@@ -478,11 +478,12 @@ var Buy = Vue.extend({
             };
 
             var extras = [];
-            for (var index in self.cart_list) {
+            for (var index = 0, len = self.cart_list.length; index < len; index++) {
                 var _item = self.cart_list[index];
                 extras.push('' + _item.id + ':' + _item.count);
             }
             params.extras = extras.join(",");
+            //return;
 
             //提交订单
             this.$http.post('/api/order', params, function (data, status, request) {
