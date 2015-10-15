@@ -28,7 +28,19 @@ YOUCAI_WXPAY_CONF = WXPAY_CONF['youcai']
 class IndexHandler(AuthHandler):
     @coroutine
     def get(self):
+        ua = self.request.headers['User-Agent']
+        # hasWx = True if -1 != ua.find('MicroMessenger') else False
+        hasWx = 'MicroMessenger' in ua
+
         code = self.get_argument('code', None)
+
+        if hasWx and not code:  # 微信
+            redirect_uri = urllib.parse.quote(self.request.protocol + '://' + self.request.host)
+            url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + YOUCAI_WXPAY_CONF['appid'] + \
+                  '&redirect_uri=' + redirect_uri \
+                  + '&response_type=code&scope=snsapi_base&state=STATE&connect_redirect=1#wechat_redirect'
+            self.redirect(url)
+
         if code:
             # return self.write(error(ErrorCode.PARAMERR, '需要code参数'))
 
@@ -90,15 +102,15 @@ class IndexHandler(AuthHandler):
 
 
 # 微信入口
-class WxHandler(AuthHandler):
-    def get(self):
-        redirect_uri = urllib.parse.quote(self.request.protocol + '://' + self.request.host)
-        # url = urllib.parse.quote('https://youcai.shequcun.com')
-        # redirect_uri = 'https%3A%2F%2Fm.youcai.xin'
-        url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + YOUCAI_WXPAY_CONF['appid'] + \
-              '&redirect_uri=' + redirect_uri \
-              + '&response_type=code&scope=snsapi_base&state=STATE&connect_redirect=1#wechat_redirect'
-        self.redirect(url)
+# class WxHandler(AuthHandler):
+#     def get(self):
+#         redirect_uri = urllib.parse.quote(self.request.protocol + '://' + self.request.host)
+#         # url = urllib.parse.quote('https://youcai.shequcun.com')
+#         # redirect_uri = 'https%3A%2F%2Fm.youcai.xin'
+#         url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + YOUCAI_WXPAY_CONF['appid'] + \
+#               '&redirect_uri=' + redirect_uri \
+#               + '&response_type=code&scope=snsapi_base&state=STATE&connect_redirect=1#wechat_redirect'
+#         self.redirect(url)
 
 
 class PayHandler(AuthHandler):
@@ -140,29 +152,29 @@ class PayHandler(AuthHandler):
         self.render('pay_weixin.html', params=params)
 
 
-class PayWeixinTestHandler(AuthHandler):
-    # @coroutine
-    def get(self):
-        try:
-            # 支付参数
-            import random
-
-            params = make_order(self.session.get('openid'), "测试支付", random.randint(1000000000000, 9999999999999), 1,
-                                self.request.remote_ip)
-            log.error(params)
-            self.render('pay_weixin_test.html', params=params)
-        except Exception as e:
-            log.error(e)
-            return self.write(error(ErrorCode.PARAMERR))
+# class PayWeixinTestHandler(AuthHandler):
+#     # @coroutine
+#     def get(self):
+#         try:
+#             # 支付参数
+#             import random
+#
+#             params = make_order(self.session.get('openid'), "测试支付", random.randint(1000000000000, 9999999999999), 1,
+#                                 self.request.remote_ip)
+#             log.error(params)
+#             self.render('pay_weixin_test.html', params=params)
+#         except Exception as e:
+#             log.error(e)
+#             return self.write(error(ErrorCode.PARAMERR))
 
 
 class YoucaiWeb(Application):
     def __init__(self):
         handlers = [
             (r'/', IndexHandler),  # 首页
-            (r'/wx', WxHandler),  # 微信授权页面
+            # (r'/wx', WxHandler),  # 微信授权页面
             (r'/pay/wx', PayHandler),  # 支付
-            (r'/pay_test', PayWeixinTestHandler),  # 微信支付测试页
+            # (r'/pay_test', PayWeixinTestHandler),  # 微信支付测试页
             (r'/api/address', address.AddressHandler),
             (r'/api/recom_item', recom_item.DetailHandler),
             (r'/api/home', home.HomeHandler),
