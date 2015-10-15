@@ -495,7 +495,7 @@ var Buy = Vue.extend({
                     return;
                 }
                 //清除购物车数据
-                store.remove('cart');
+                //store.remove('cart');
 
                 //TODO 去支付
                 //console.log('去支付');
@@ -523,7 +523,11 @@ var Buy = Vue.extend({
 
 //订单支付结果
 var PayResult = Vue.extend({
-    template: '#pay-result-template'
+    template: '#pay-result-template',
+    created: function () {
+        //清除购物车数据
+        store.remove('cart');
+    }
 });
 
 var Login = Vue.extend({
