@@ -29,7 +29,6 @@ def make_order(openid, title, order_no, fee, remote_ip):
         'nonce_str': uuid.uuid4().hex,
         'body': title,
         'detail': '公众号扫码订单',
-        'attach': '',
         'out_trade_no': order_no,
         'total_fee': fee,
         'spbill_create_ip': remote_ip,
