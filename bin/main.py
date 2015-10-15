@@ -135,8 +135,7 @@ class PayHandler(AuthHandler):
 
         # import random
         # 支付参数
-        # params = make_order(self.session.get('openid'), order['title'], order['orderno'], order['price'], self.request.remote_ip)
-        params = make_order(self.session.get('openid'), order['title'], order['orderno'], 1, self.request.remote_ip)
+        params = make_order(self.session.get('openid'), order['title'], order['orderno'], order['price'], self.request.remote_ip)
         log.error(params)
         self.render('pay_weixin.html', params=params)
 
