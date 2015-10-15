@@ -12,8 +12,8 @@ log = initlog({
     'ERROR': '%s/log/youcai-web-%s.error.log' % (DEPLOY_PATH, PROCESS_SN)
 }, mode='timed', backup_count=15)
 
-CACHE_SERVER = {'host': '127.0.0.1', 'port': 9736, 'db': 1, 'password': 'h4M1eT#S0z'}
-SESSION_SERVER = {'host': '127.0.0.1', 'port': 9736, 'db': 4, 'password': 'h4M1eT#S0z'}
+CACHE_SERVER = {'host': '127.0.0.1', 'port': 9736, 'db': 4, 'password': 'h4M1eT#S0z'}
+SESSION_SERVER = {'host': '127.0.0.1', 'port': 9736, 'db': 0, 'password': 'h4M1eT#S0z'}
 MONGO_HAMLET = {'master': 'mongodb://sqc_user:zY#s9C)1z0@127.0.0.1:28017/hamlet', 'slave': 'mongodb://sqc_read:)Z!0c(S3yZ@127.0.0.1:28017/hamlet', 'replset': 'sqc'}
 MONGO_STORE = {'master': 'mongodb://sqc_user:zY#s9C)1z0@127.0.0.1:28017/store', 'slave': 'mongodb://sqc_read:)Z!0c(S3yZ@127.0.0.1:28017/store', 'replset': 'sqc'}
 MONGO_UTIL = {'master': 'mongodb://sqc_user:zY#s9C)1z0@127.0.0.1:28017/util', 'slave': 'mongodb://sqc_read:)Z!0c(S3yZ@127.0.0.1:28017/util', 'replset': 'sqc'}

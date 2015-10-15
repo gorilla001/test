@@ -11,8 +11,8 @@ log = initlog({
     'ERROR': '%s/log/youcai-web.error.log' % ROOT_PATH
 }, True, mode='timed', backup_count=15)
 
-CACHE_SERVER = {'host': '192.168.1.100', 'port': 6379, 'db': 1, 'password': 'redis%sqc'}
-SESSION_SERVER = {'host': '192.168.1.100', 'port': 6379, 'db': 4, 'password': 'redis%sqc'}
+CACHE_SERVER = {'host': '192.168.1.100', 'port': 6379, 'db': 4, 'password': 'redis%sqc'}
+SESSION_SERVER = {'host': '192.168.1.100', 'port': 6379, 'db': 0, 'password': 'redis%sqc'}
 MONGO_HAMLET = {'master': '192.168.1.100:27017'}
 MONGO_STORE = {'master': '192.168.1.100:27017'}
 MONGO_UTIL = {'master': '192.168.1.100:27017'}
