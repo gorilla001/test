@@ -463,13 +463,13 @@ var Buy = Vue.extend({
             }
 
             var params = {
-                combo_id: '',
-                combo_idx: '',
-                coupon_id: '',
+                //combo_id: '',
+                //combo_idx: '',
+                //coupon_id: '',
                 type: 3, //订单类型，取值 1.套餐订单 2.选菜订单, 3.单品订单
-                items: '',  //amount1,id2:amount2...
-                extras: '',
-                spares: '',
+                //items: '',  //amount1,id2:amount2...
+                //extras: '',
+                //spares: '',
                 name: self.address.name,
                 mobile: self.address.mobile,
                 address: self.address.address,
@@ -499,14 +499,20 @@ var Buy = Vue.extend({
 
                 //TODO 去支付
                 console.log('去支付');
-                //去支付
+                console.log(data);
 
-                router.go({
-                    //router.replace({
-                    name: 'pay_result',
-                    // params 和 query 可选
-                    params: {}
-                })
+                //去支付
+                var url = '/pay?orderno=' + data.orderno + '&type=1';
+                //url += '&url=' + escape(window.location.host + '/#!pay_result');
+                console.log(url)
+                window.location.href = url;
+
+                //router.go({
+                //    //router.replace({
+                //    name: 'pay_result',
+                //    // params 和 query 可选
+                //    params: {}
+                //})
 
             }).error(function (data, status, request) {
                 // handle error

@@ -190,10 +190,10 @@
             <div>请支付金额</div>
             <div>￥(% (all_price*0.01).toFixed(2) %)</div>
         </section>
-        <section class="block row-1 pay m-b-1">
+        <section class="block row-1 pay m-b-1" v-on="click:created_order('wx')">
             <img src="static/img/pay_weixin.png"/>
 
-            <div v-on="click:created_order('wx')">微信支付<img class="icon" src="./static/img/icon_right.png"/></div>
+            <div>微信支付<img class="icon" src="./static/img/icon_right.png"/></div>
         </section>
 
         <section class="block row-1 pay m-b-1">
@@ -202,10 +202,10 @@
             <a href="/pay_test">微信支付测试<img class="icon" src="./static/img/icon_right.png"/></a>
         </section>
 
-        <section class="block row-1 pay m-b-0">
+        <section class="block row-1 pay m-b-0" v-on="click:created_order('alipay')">
             <img src="static/img/pay_alipay.png"/>
 
-            <div v-on="click:created_order('wx')">支付宝支付<img class="icon" src="./static/img/icon_right.png"/></div>
+            <div>支付宝支付<img class="icon" src="./static/img/icon_right.png"/></div>
         </section>
         <c-textarea has-show="(%@ show_textarea %)" text="(%@ memo %)" btn-text="确认" placeholder="请输入内容"></c-textarea>
     </div>
@@ -345,6 +345,6 @@
 
 <script type="text/javascript" src="/static/component/slide/swipeSlide.min_587c461.js"></script>
 
-<script src="/static/app_60f01a6.js" type="text/javascript"></script>
+<script src="/static/app_6391ad2.js" type="text/javascript"></script>
 </body>
 </html>

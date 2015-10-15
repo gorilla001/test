@@ -37,6 +37,9 @@ def make_order(openid, title, order_no, fee, remote_ip):
         'trade_type': 'JSAPI',
         'openid': openid
     }
+    log.info('================params===========')
+    log.info(params)
+
     params.update({'sign': wxpay_sign(params)})
     try:
         xml = xmltodict.unparse({'xml': params}, full_document=False)

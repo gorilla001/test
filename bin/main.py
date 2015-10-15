@@ -54,7 +54,7 @@ class IndexHandler(AuthHandler):
                 log.error(e)
                 return self.write(error(ErrorCode.REQERR, '请求openid出错'))
 
-        #self.get_openid(self.get_argument('code', None) or '')
+        # self.get_openid(self.get_argument('code', None) or '')
         log.info('================openid===========')
         log.info(self.session.get('openid'))
         self.render('index.html')
@@ -101,13 +101,43 @@ class WxHandler(AuthHandler):
         self.redirect(url)
 
 
-class PayWeixinHandler(AuthHandler):
-    # @coroutine
+class PayHandler(AuthHandler):
+    @coroutine
     def get(self):
-        # 支付参数
-        import random
 
-        params = make_order(self.session.get('openid'), "测试支付", random.randint(1000000000000, 9999999999999), 1, self.request.remote_ip)
+        log.info('PayHandler-----------')
+        if self.userid == 0:
+            return self.write(error(ErrorCode.LOGINERR))
+
+        try:
+            orderno = int(self.get_argument('orderno'))  # 订单号
+        except Exception as e:
+            log.error(e)
+            self.redirect('/')
+            return
+        log.info(orderno)
+        query = {'uid': self.userid, 'orderno': orderno}
+
+        log.info(query)
+        try:
+            order = yield self.db['youcai'].order.find_one(query)
+        except Exception as exc:
+            log.error(exc)
+            return self.write(error(ErrorCode.DBERR))
+
+        log.info(order)
+
+        if not order:
+            # 订单不存在
+            self.redirect('/')
+        # return;
+        self.redirect('/#!pay_result')
+        return;
+
+        # import random
+        # 支付参数
+        params = make_order(self.session.get('openid'), order['title'], order['orderno'], order['price'],
+                            self.request.remote_ip)
         log.error(params)
         self.render('pay_weixin.html', params=params)
 
@@ -119,7 +149,8 @@ class PayWeixinTestHandler(AuthHandler):
             # 支付参数
             import random
 
-            params = make_order(self.session.get('openid'), "测试支付", random.randint(1000000000000, 9999999999999), 1, self.request.remote_ip)
+            params = make_order(self.session.get('openid'), "测试支付", random.randint(1000000000000, 9999999999999), 1,
+                                self.request.remote_ip)
             log.error(params)
             self.render('pay_weixin_test.html', params=params)
         except Exception as e:
@@ -132,7 +163,7 @@ class YoucaiWeb(Application):
         handlers = [
             (r'/', IndexHandler),  # 首页
             (r'/wx', WxHandler),  # 微信授权页面
-            # (r'/pay/weixn_test', PayWeixinTestHandler),  # 微信支付测试页
+            (r'/pay', PayHandler),  # 支付
             (r'/pay_test', PayWeixinTestHandler),  # 微信支付测试页
             (r'/api/address', address.AddressHandler),
             (r'/api/recom_item', recom_item.DetailHandler),
