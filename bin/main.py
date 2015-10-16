@@ -32,6 +32,8 @@ class IndexHandler(AuthHandler):
         # hasWx = True if -1 != ua.find('MicroMessenger') else False
         hasWx = 'MicroMessenger' in ua
 
+        state_url = self.get_argument('state', '')  # state 此参数扫码进来 如: http://192.168.1.222:8003/?state=recomitem/15
+
         if hasWx:  # 微信
             openid = self.session.get('openid')
             if not openid:  # 没有 openid
@@ -39,10 +41,10 @@ class IndexHandler(AuthHandler):
                 if not code:  # 没有 code 获取code
                     redirect_uri = urllib.parse.quote(self.request.protocol + '://' + self.request.host)
                     url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + YOUCAI_WXPAY_CONF['appid'] + \
+                          '&response_type=code&scope=snsapi_base' \
                           '&redirect_uri=' + redirect_uri \
-                          + '&response_type=code&scope=snsapi_base' \
-                            '&state=STATE' \
-                            '&connect_redirect=1#wechat_redirect'
+                          + '&state=' + urllib.parse.quote(state_url) \
+                          + '&connect_redirect=1#wechat_redirect'
                     self.redirect(url)
                 else:  # 有 code 获取openid
                     client = AsyncHTTPClient()
@@ -66,6 +68,11 @@ class IndexHandler(AuthHandler):
                     except Exception as e:
                         log.error(e)
                         return self.write(error(ErrorCode.REQERR, '请求openid出错'))
+
+        if state_url:  # 有状态 url 则重定向
+            _url = '/#!/' + state_url
+            self.redirect(_url)
+            return
 
         self.render('index.html')
 
@@ -136,7 +143,8 @@ class PayHandler(AuthHandler):
 
         # import random
         # 支付参数
-        params = make_order(self.session.get('openid'), order['title'], order['orderno'], order['price'], self.request.remote_ip)
+        params = make_order(self.session.get('openid'), order['title'], order['orderno'], order['price'],
+                            self.request.remote_ip)
         # log.info(params)
         self.render('pay_weixin.html', params=params)
 
