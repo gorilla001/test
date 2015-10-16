@@ -30,6 +30,7 @@
     //justify-content: center;
 
     & > a {
+      position: relative;
       //display: block;
       display: inline-block;
       width: px2rem(290);
@@ -63,6 +64,24 @@
       .price {
         color: #49C37E;
         margin-right: px2rem(14);
+      }
+    }
+    .badge {
+      display: none;
+      position: absolute;
+      top: px2rem(14);
+      left: px2rem(14);
+      height: px2rem(34);
+      line-height: px2rem(34);
+      width: px2rem(68);
+      text-align: center;
+      font-size: px2rem(20);
+
+      border-radius: 100px;
+      background-color: #EC8A60;
+      color: white;
+      &.activity {
+        display: block;
       }
     }
   }
