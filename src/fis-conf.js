@@ -13,17 +13,35 @@ fis.match('*.{js,css,scss}', {
 fis.set('project.ignore', [
     //'output/**',
     'node_modules/**',
+    'bower_components/**',
     '.git/**',
     '.svn/**',
     //'static/styles/**.less'
     'fis-conf.js',
     'package.json',
     'bower.json',
-    'bower_components/**'
+    'static/component/**'
 ]);
 
 fis.match('bower.json', {
     // 设置 release 为 FALSE，不再产出此文件
+    //release: false
+});
+
+// 设置 release 为 FALSE，不再产出此文件
+//fis.match('static/component/**/*', {
+//    release: false
+//});
+
+fis.match('static/script/core.js', {
+    release: false
+});
+
+//fis.match('static/style/base/_*.scss', {
+fis.match('static/style/base/_**.scss', {
+    release: false
+});
+fis.match('static/style/_*.scss', {
     release: false
 });
 
@@ -55,6 +73,7 @@ fis.match('/bower_components/**/*.{js,css}', {
 
 fis.match('/static/style/*.scss', {
 //fis.match('/static/style/app.scss', {
+    //release: true,
     parser: fis.plugin('sass', {}), //属性 parser 表示了插件的类型
     rExt: '.css',
     postprocessor: fis.plugin('autoprefixer', {
@@ -173,7 +192,7 @@ fis.media('prod')
 
     ////所有页面中引用到的bower js资源
     //.match("bower_components/**/*.js", {
-    //    packTo: "/pkg/vendor.js"
+    //    packTo: "/static/pkg/vendor.js"
     //})
     ////所有页面中引用到的bower css资源
     //.match("bower_components/**/*.css", {
