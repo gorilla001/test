@@ -17,7 +17,7 @@ from util.helper import error, ErrorCode
 from util.session import SessionManager
 from api import *
 from base import AuthHandler, BaseHandler
-from util.test import make_order
+from util.wx import make_order
 
 tornado.options.define('port', default=8000, help='run on the given port', type=int)
 tornado.options.define('debug', default=False, help='debug mode', type=bool)
@@ -32,43 +32,41 @@ class IndexHandler(AuthHandler):
         # hasWx = True if -1 != ua.find('MicroMessenger') else False
         hasWx = 'MicroMessenger' in ua
 
-        code = self.get_argument('code', None)
+        if hasWx:  # 微信
+            openid = self.session.get('openid')
+            if not openid:  # 没有 openid
+                code = self.get_argument('code', None)
+                if not code:  # 没有 code 获取code
+                    redirect_uri = urllib.parse.quote(self.request.protocol + '://' + self.request.host)
+                    url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + YOUCAI_WXPAY_CONF['appid'] + \
+                          '&redirect_uri=' + redirect_uri \
+                          + '&response_type=code&scope=snsapi_base' \
+                            '&state=STATE' \
+                            '&connect_redirect=1#wechat_redirect'
+                    self.redirect(url)
+                else:  # 有 code 获取openid
+                    client = AsyncHTTPClient()
+                    query = {
+                        'appid': WXPAY_CONF['youcai']['appid'],
+                        'secret': WXPAY_CONF['youcai']['secret'],
+                        'code': code,
+                        'grant_type': 'authorization_code'
+                    }
+                    try:
+                        response = yield client.fetch(
+                            'https://api.weixin.qq.com/sns/oauth2/access_token?' + urllib.parse.urlencode(query))
+                        result = json.loads(response.body.decode())
+                        # log.info(result)
+                        if 'errmsg' in result:
+                            log.error(result)
+                            return self.write(error(ErrorCode.THIRDERR, result['errmsg']))
 
-        if hasWx and not code:  # 微信
-            redirect_uri = urllib.parse.quote(self.request.protocol + '://' + self.request.host)
-            url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + YOUCAI_WXPAY_CONF['appid'] + \
-                  '&redirect_uri=' + redirect_uri \
-                  + '&response_type=code&scope=snsapi_base&state=STATE&connect_redirect=1#wechat_redirect'
-            self.redirect(url)
+                        self.session['openid'] = result['openid']
+                        self.session.save()
+                    except Exception as e:
+                        log.error(e)
+                        return self.write(error(ErrorCode.REQERR, '请求openid出错'))
 
-        if code:
-            # return self.write(error(ErrorCode.PARAMERR, '需要code参数'))
-
-            client = AsyncHTTPClient()
-            query = {
-                'appid': WXPAY_CONF['youcai']['appid'],
-                'secret': WXPAY_CONF['youcai']['secret'],
-                'code': code,
-                'grant_type': 'authorization_code'
-            }
-            try:
-                response = yield client.fetch(
-                    'https://api.weixin.qq.com/sns/oauth2/access_token?' + urllib.parse.urlencode(query))
-                result = json.loads(response.body.decode())
-                log.info(result)
-                if 'errmsg' in result:
-                    log.error(result)
-                    return self.write(error(ErrorCode.THIRDERR, result['errmsg']))
-
-                self.session['openid'] = result['openid']
-                self.session.save()
-            except Exception as e:
-                log.error(e)
-                return self.write(error(ErrorCode.REQERR, '请求openid出错'))
-
-        # self.get_openid(self.get_argument('code', None) or '')
-        log.info('================openid===========')
-        log.info(self.session.get('openid'))
         self.render('index.html')
 
     def get_openid(self, code):
@@ -83,15 +81,11 @@ class IndexHandler(AuthHandler):
             'grant_type': 'authorization_code'
         }
         try:
-            log.error('================request openid===========')
             response = yield client.fetch(
                 'https://api.weixin.qq.com/sns/oauth2/access_token?' + urllib.parse.urlencode(query))
             text = response.body.decode()
-            log.error(text)
             result = json.loads(text)
-            log.error(result)
             if 'errmsg' in result:
-                log.error(result)
                 return self.write(error(ErrorCode.THIRDERR, result['errmsg']))
             self.session['openid'] = result['openid']
             self.session.save()
@@ -117,7 +111,6 @@ class PayHandler(AuthHandler):
     @coroutine
     def get(self):
 
-        log.info('PayHandler-----------')
         if self.userid == 0:
             return self.write(error(ErrorCode.LOGINERR))
 
@@ -127,17 +120,13 @@ class PayHandler(AuthHandler):
             log.error(e)
             self.redirect('/')
             return
-        log.info(orderno)
-        query = {'uid': self.userid, 'orderno': orderno}
 
-        log.info(query)
+        query = {'uid': self.userid, 'orderno': orderno}
         try:
             order = yield self.db['youcai'].order.find_one(query)
         except Exception as exc:
             log.error(exc)
             return self.write(error(ErrorCode.DBERR))
-
-        log.info(order)
 
         if not order:
             # 订单不存在
@@ -148,7 +137,7 @@ class PayHandler(AuthHandler):
         # import random
         # 支付参数
         params = make_order(self.session.get('openid'), order['title'], order['orderno'], order['price'], self.request.remote_ip)
-        log.error(params)
+        # log.info(params)
         self.render('pay_weixin.html', params=params)
 
 
