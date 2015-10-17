@@ -1,20 +1,24 @@
 # -*- coding: utf-8 -*-
 
 import re
+import rsa
 import time
 import uuid
+import urllib
+import base64
 import xmltodict
-import datetime
 import hashlib
+from constants import APPTYPE_YOUCAI
 from operator import itemgetter
 from tornado.gen import coroutine
 from tornado.httpclient import AsyncHTTPClient
-from conf.settings import log, WXPAY_CONF
+from conf.settings import log, WXPAY_CONF, ALIPAY_CONF
 from base import AuthHandler
 from util.helper import error, ErrorCode, mongo_uid, gen_orderno
 
 _DATABASE = 'youcai'
 YOUCAI_WXPAY_CONF = WXPAY_CONF['youcai']
+PRI_KEY = rsa.PrivateKey.load_pkcs1(base64.decodebytes(ALIPAY_CONF['private_key']), 'DER')
 
 _ORDER_TYPE = {
     1: "套餐订单",
@@ -194,17 +198,17 @@ class OrderHandler(AuthHandler):
             freight = 1000 if item_type == 2 and price < 9900 else 0
             fee = disprice + freight
             result.update({'fee': fee, 'freight': freight})
-            # if paytype == 2:  # 支付宝支付
-            #     alipay_info = ALIPAY_CONF['order_info'].format(orderno=order_no,
-            #                                                    title=title,
-            #                                                    body='有菜订单',
-            #                                                    price=fee / 100,
-            #                                                    apptype=APPTYPE_YOUCAI,
-            #                                                    extra=coupon_id if coupon_id else '')
-            #     sign = base64.encodebytes(rsa.sign(alipay_info.encode(), PRI_KEY, 'SHA-1')).decode().replace('\n', '')
-            #     alipay = alipay_info + ('&sign="%s"&sign_type="RSA"' % urllib.parse.quote_plus(sign))
-            #     result.update({'alipay': alipay})
-            if paytype == 3:  # 微信支付
+            if paytype == 2:  # 支付宝支付
+                alipay_info = ALIPAY_CONF['order_info'].format(orderno=order_no,
+                                                               title=title,
+                                                               body='有菜H5订单',
+                                                               price=fee / 100,
+                                                               apptype=APPTYPE_YOUCAI,
+                                                               extra='')
+                sign = base64.encodebytes(rsa.sign(alipay_info.encode(), PRI_KEY, 'SHA-1')).decode().replace('\n', '')
+                alipay = alipay_info + ('&sign="%s"&sign_type="RSA"' % urllib.parse.quote_plus(sign))
+                result.update({'alipay': alipay})
+            elif paytype == 3:  # 微信支付
                 params = {
                     'appid': YOUCAI_WXPAY_CONF['appid'],
                     'mch_id': YOUCAI_WXPAY_CONF['mchid'],
