@@ -559,7 +559,7 @@ var Login = Vue.extend({
                 return;
             }
 
-            this.$http.post('/api/auth/send_smscode', {
+            this.$http.post('/api/util/smscode', {
                 //_xsrf: app._xsrf,
                 mobile: this.mobile
             }, function (data, status, request) {
@@ -710,7 +710,7 @@ var AddressDetail = Vue.extend({
         //console.log(this.$root.b)
 
         //获取北京地区区县
-        this.$http.jsonp(app.apiDomain + '/util/region', {pid: 1}, function (data, status, request) {
+        this.$http.get('/api/util/region', {pid: 1}, function (data, status, request) {
             this.$set('region_list', data.regions);
 
             this.$dispatch('get_address', this.address_id);

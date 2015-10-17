@@ -151,7 +151,7 @@ $(function () {
                 return;
             }
             //var data = {errcode: 3000, errmsg: "请稍等50秒重新发送"}
-            $.post('/api/auth/send_smscode', {mobile: mobile, _xsrf: _xsrf}, function (data) {
+            $.post('/api/util/smscode', {mobile: mobile, _xsrf: _xsrf}, function (data) {
                 if (data && data.errcode) {
                     $('#reg_errmsg').text(data.errmsg);
                     return;
