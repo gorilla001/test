@@ -256,7 +256,7 @@ class CouponHandler(AuthHandler):
 # 有菜优惠券说明
 class CouponInfoHandler(AuthHandler):
     def get(self):
-        self.render('coupon/coupon_info.html')
+        self.render('coupon/info.html')
 
 
 class YoucaiWeb(Application):
@@ -277,7 +277,7 @@ class YoucaiWeb(Application):
             (r'/coupon', CouponHandler),  # 有菜优惠券
             (r'/api/coupon', coupon.CouponHandler),  # 有菜获取优惠券接口
             (r'/api/update_mobile', coupon.UpdateMobileHandler),  # 更改红包领取手机号
-            (r'/coupon/yc_info', CouponInfoHandler),  # 有菜优惠券说明
+            (r'/coupon/info', CouponInfoHandler),  # 有菜优惠券说明
         ]
         settings = dict(
             debug=options.debug,
