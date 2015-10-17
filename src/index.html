@@ -105,7 +105,7 @@
         <section class="info">
             <h2>(% data.title %)</h2>
 
-            <div class="m-b-30">(% data.descr %)</div>
+            <div class="m-b-30" v-html="data.descr"></div>
             <div>
                 <span class="price f-z-lg">￥(% (data.price*0.01).toFixed(2) %)</span>
                 <span class="mprice f-z-sm t-d-l-t">￥(% (data.mprice*0.01).toFixed(2) %)</span>
@@ -122,7 +122,8 @@
             <img src="https://store.shequcun.com/static/page/yc/img/item_chapter.png"/>
         </section>
         <section class="detail m-b-0">
-            <div class="content">(% data.detail && data.detail.content %)</div>
+            <!--<div class="content">(% data.detail && data.detail.content %)</div>-->
+            <div class="content" v-html="data.detail && data.detail.content"></div>
         </section>
         <div class="detail-image" v-show="src:data.detail && data.detail.image">
             <img v-attr="src:data.detail && data.detail.image+'?imageView2/2/w/400'"/>
