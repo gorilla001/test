@@ -762,6 +762,9 @@ var AddressDetail = Vue.extend({
         },
         //保存地址
         save: function () {
+            var self = this;
+            !self.address.city && (self.address.city = '北京');  //默认北京
+
             this.$http.post('/api/address', this.address, function (data, status, request) {
                 if (data && data.errcode) {
                     alert(data.errmsg);
