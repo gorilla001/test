@@ -3,7 +3,7 @@
 import random
 import time
 from tornado.gen import coroutine
-from conf.settings import AMAP_CONF, log
+from conf.settings import log
 from base import AuthHandler, BaseHandler, unblock
 from util.helper import error, ErrorCode, gen_owcode, streamtype
 
