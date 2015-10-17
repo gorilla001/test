@@ -43,6 +43,33 @@ var util = {
                 setCookie('username', username, 365)
             }
         }
+    },
+    //post提交页面
+    post_submit: function (url, params) {
+        var temp = document.createElement("form");
+        temp.action = url;
+        temp.method = "post";
+        temp.style.display = "none";
+        for (var i in params) {
+            //for (var i = 0, len = params.length; i < len; i++) {
+            var opt = document.createElement("textarea");
+            opt.name = i;
+            opt.value = params[i];
+            // alert(opt.name)
+            temp.appendChild(opt);
+        }
+        document.body.appendChild(temp);
+        temp.submit();
+        return temp;
+    },
+    //是否是微信打开
+    has_weixn: function () {
+        var ua = navigator.userAgent.toLowerCase();
+        if (ua.match(/MicroMessenger/i) == "micromessenger") {
+            return true;
+        } else {
+            return false;
+        }
     }
 };
 
@@ -514,8 +541,14 @@ var Buy = Vue.extend({
                 } else if (2 == paytype) {  // 支付宝支付
                     //alert('支付宝支付')
                     url = 'https://mapi.alipay.com/gateway.do?' + data.alipay;
+
+                    //util.post_submit('https://mapi.alipay.com/gateway.do?', {a: 1, b: 2});
+                    //util.post_submit('https://mapi.alipay.com/gateway.do?', {a: 1, b: 2});
+                    //return;
                 }
+                //console.log(url)
                 window.location.href = url;
+                return;
 
                 //router.go({
                 //    //router.replace({
@@ -846,8 +879,9 @@ var Input = Vue.extend({
 var App = Vue.extend({
     data: function () {
         return {
-            a: 1,
-            b: 2
+            //a: 1,
+            //b: 2
+            has_wx: util.has_weixn()
         }
     },
     created: function () {

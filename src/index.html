@@ -187,7 +187,7 @@
             <div>请支付金额</div>
             <div>￥(% (all_price*0.01).toFixed(2) %)</div>
         </section>
-        <section class="block row-1 pay m-b-1" v-on="click:created_order(3)">
+        <section class="block row-1 pay m-b-1" v-show="has_wx" v-on="click:created_order(3)">
             <img src="static/img/pay_weixin.png"/>
 
             <div>微信支付<img class="icon" src="./static/img/icon_right.png"/></div>
