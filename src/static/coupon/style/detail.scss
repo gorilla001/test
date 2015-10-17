@@ -185,7 +185,6 @@ a.btn {
   ol {
     color: #613d00;
     margin: px2rem(60);
-    margin-bottom: 0;
     list-style-type: decimal;
     li {
       margin-left: px2rem(30);
@@ -196,6 +195,9 @@ a.btn {
 .about {
   p {
     padding: px2rem(60);
+  }
+  ol:last-child {
+    margin-bottom: 0;
   }
 }
 
