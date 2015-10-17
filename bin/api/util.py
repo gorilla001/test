@@ -5,7 +5,7 @@ import time
 from tornado.gen import coroutine
 from conf.settings import log
 from base import AuthHandler, BaseHandler, unblock
-from util.helper import error, ErrorCode, gen_owcode, streamtype
+from util.helper import error, ErrorCode, streamtype
 
 
 class SmscodeHandler(AuthHandler):
