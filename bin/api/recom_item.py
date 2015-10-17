@@ -25,6 +25,9 @@ class DetailHandler(AuthHandler):
                 if IMG_CACHE_URL:
                     recom_item['imgs'] = list(map(lambda x: IMG_CACHE_URL + x[len(IMAGE_DOMAIN):] if x.startswith(IMAGE_DOMAIN) else x, recom_item['imgs']))
 
+                recom_item['descr'] = recom_item['descr'].replace('\n', '<br/>')
+                recom_item['detail']['content'] = recom_item['detail']['content'].replace('\n', '<br/>')
+
                 buffer = io.BytesIO()
                 url = pyqrcode.create(self.request.protocol + '://' + self.request.host + '/#!/recomitem/' + str(recom_item_id))
                 url.png(buffer, scale=5, quiet_zone=0)
