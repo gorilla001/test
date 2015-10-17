@@ -43,7 +43,7 @@ $(function () {
     });
 
 //var d_url = 'https://cun.im/yc';
-    var api_url = '/api/yc/coupon',
+    var api_url = '/api/coupon',
         _xsrf = getCookie('_xsrf');
 
     var $action_1 = $('.action_1'),
@@ -151,7 +151,7 @@ $(function () {
                 return;
             }
             //var data = {errcode: 3000, errmsg: "请稍等50秒重新发送"}
-            $.post('/api/yc/send_smscode', {mobile: mobile, _xsrf: _xsrf}, function (data) {
+            $.post('/api/auth/send_smscode', {mobile: mobile, _xsrf: _xsrf}, function (data) {
                 if (data && data.errcode) {
                     $('#reg_errmsg').text(data.errmsg);
                     return;
@@ -212,7 +212,7 @@ $(function () {
                     return;
                 }
 
-                $.post('/api/yc/update_mobile', {mobile: value, _xsrf: _xsrf}, function (data) {
+                $.post('/api/update_mobile', {mobile: value, _xsrf: _xsrf}, function (data) {
                     if (data && data.errcode) {
                         $('#reg_errmsg').text(data.errmsg);
                         return;

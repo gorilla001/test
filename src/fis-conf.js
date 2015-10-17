@@ -217,6 +217,10 @@ fis.media('prod')
         //preprocessor: fis.plugin('annotate'),
         optimizer: fis.plugin('uglify-js')
     })
+    .match('static/coupon/script/*.js', {
+        //preprocessor: fis.plugin('annotate'),
+        optimizer: fis.plugin('uglify-js')
+    })
     //.match('**.css', {
     //    optimizer: fis.plugin('clean-css')
     //});

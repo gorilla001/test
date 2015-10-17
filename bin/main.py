@@ -275,9 +275,8 @@ class YoucaiWeb(Application):
 
             # (r'/download/yc', YcDownloadHandler),  # 有菜下载
             (r'/coupon', CouponHandler),  # 有菜优惠券
-            (r'/api/yc/coupon', coupon.CouponHandler),  # 有菜获取优惠券接口
-            (r'/api/yc/send_smscode', coupon.SendSmscodeHandler),  # 接受手机号，发送验证码接口
-            (r'/api/yc/update_mobile', coupon.UpdateMobileHandler),  # 更改红包领取手机号
+            (r'/api/coupon', coupon.CouponHandler),  # 有菜获取优惠券接口
+            (r'/api/update_mobile', coupon.UpdateMobileHandler),  # 更改红包领取手机号
             (r'/coupon/yc_info', CouponInfoHandler),  # 有菜优惠券说明
         ]
         settings = dict(
