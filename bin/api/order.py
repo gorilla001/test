@@ -207,7 +207,8 @@ class OrderHandler(AuthHandler):
                                                                extra='')
                 sign = base64.encodebytes(rsa.sign(alipay_info.encode(), PRI_KEY, 'SHA-1')).decode().replace('\n', '')
                 alipay = alipay_info + ('&sign="%s"&sign_type="RSA"' % urllib.parse.quote_plus(sign))
-                result.update({'alipay': alipay})
+                # result.update({'alipay': alipay})
+                result.update({'alipay': alipay.replace('"', '')})
             elif paytype == 3:  # 微信支付
                 params = {
                     'appid': YOUCAI_WXPAY_CONF['appid'],

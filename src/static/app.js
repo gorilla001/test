@@ -456,7 +456,7 @@ var Buy = Vue.extend({
             this.$set('all_price', all_price);
         },
         //创建订单
-        created_order: function (type) {
+        created_order: function (paytype) {
             var self = this;
 
             //验证
@@ -476,7 +476,7 @@ var Buy = Vue.extend({
                 mobile: self.address.mobile,
                 address: self.address.address,
                 memo: self.memo,
-                paytype: 3   //支付方式，默认2，2.支付宝支付，3.微信支付
+                paytype: paytype   //支付方式，默认2，2.支付宝支付，3.微信支付
             };
 
             var extras = [];
@@ -502,12 +502,19 @@ var Buy = Vue.extend({
 
                 //TODO 去支付
                 //console.log('去支付');
-                //console.log(data);
+                console.log(data);
 
+                var url = '';
                 //去支付
-                var url = '/pay/wx?orderno=' + data.orderno + '&type=1';
-                //url += '&url=' + escape(window.location.host + '/#!pay_result');
-                //console.log(url)
+                if (3 === paytype) {    // 微信支付
+                    url = '/pay/wx?orderno=' + data.orderno + '&type=1';
+                    //url += '&url=' + escape(window.location.host + '/#!pay_result');
+                    //console.log(url)
+                    //window.location.href = url;
+                } else if (2 == paytype) {  // 支付宝支付
+                    //alert('支付宝支付')
+                    url = 'https://mapi.alipay.com/gateway.do?' + data.alipay;
+                }
                 window.location.href = url;
 
                 //router.go({

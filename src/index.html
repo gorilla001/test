@@ -187,12 +187,12 @@
             <div>请支付金额</div>
             <div>￥(% (all_price*0.01).toFixed(2) %)</div>
         </section>
-        <section class="block row-1 pay m-b-1" v-on="click:created_order('wx')">
+        <section class="block row-1 pay m-b-1" v-on="click:created_order(3)">
             <img src="static/img/pay_weixin.png"/>
 
             <div>微信支付<img class="icon" src="./static/img/icon_right.png"/></div>
         </section>
-        <section class="block row-1 pay m-b-0">
+        <section class="block row-1 pay m-b-0" v-on="click:created_order(2)">
             <img src="static/img/pay_alipay.png"/>
 
             <div>支付宝支付<img class="icon" src="./static/img/icon_right.png"/></div>
