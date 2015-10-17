@@ -765,7 +765,8 @@ var AddressDetail = Vue.extend({
                 //清除地址列表
                 this.$dispatch('remove_address_list');
 
-                router.go({
+                //router.go({
+                router.replace({
                     name: 'address',
                     // params 和 query 可选
                     params: {}
