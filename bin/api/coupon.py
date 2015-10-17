@@ -8,37 +8,6 @@ from base import AuthHandler
 from util.helper import error, ErrorCode, mongo_uid
 
 
-class SendSmscodeHandler(AuthHandler):
-    @coroutine
-    def post(self):
-        '''
-        接受手机号，发送验证码
-        '''
-        try:
-            mobile = self.get_argument('mobile')
-        except Exception as e:
-            log.error(e)
-            self.write(error(ErrorCode.PARAMERR))
-            return
-
-        result = self.cache.get(mobile)
-        if result:
-            seconds = round(time.time()) - result['time']
-            if seconds < 60:
-                return self.write(error(ErrorCode.REQERR, '请稍等%d秒重新发送' % (60 - seconds)))
-
-        code = '%06d' % random.randint(0, 999999)
-        content = "有菜手机验证码： {code}".format(code=code)
-        try:
-            self.sms(mobile, content)
-            log.info('send sms: %s, %s' % (mobile, content))
-        except Exception as e:
-            log.error('send sms failed: %s, %s, %s' % (mobile, content, e))
-
-        self.cache.set(mobile, {'code': code, 'time': round(time.time())}, 5)
-        self.write({})
-
-
 class CouponHandler(AuthHandler):
     @coroutine
     def post(self):
