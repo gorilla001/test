@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import time
 import json
 import motor
 import urllib.parse
@@ -165,6 +166,99 @@ class PayHandler(AuthHandler):
 #             return self.write(error(ErrorCode.PARAMERR))
 
 
+# 有菜优惠券
+class CouponHandler(AuthHandler):
+    @coroutine
+    def get(self):
+        self.xsrf_token
+
+        try:
+            code = self.get_argument('code', None) or None
+        except Exception as e:
+            log.error(e)
+            code = None
+
+        data={'msg': '已过期', 'coupons': []}
+
+        if not code:    # code 未传递
+            # self.write(error(ErrorCode.UNKOWN, 'code 未传递'))
+            self.render('coupon/coupon_error.html', data=data)
+            return
+
+        # 验证优惠券包合法性
+        try:
+            coupon_pack = yield self.db['youcai'].coupon_pack.find_one({'code': code}, {'_id': 0, 'id': 1, 'code': 1, 'remains': 1})
+        except Exception as e:
+            log.error(e)
+            self.write(error(ErrorCode.SRVERR, '呃，出了点小问题，有菜君正在处理，请稍候再试！'))
+            return
+
+        if not coupon_pack: # code 无效
+            # self.write(error(ErrorCode.UNKOWN, 'code 无效'))
+            self.render('coupon/coupon_error.html', data=data)
+            return
+
+        coupons = yield self.db['youcai'].coupon \
+            .find({'cpid': coupon_pack['id']}, {'_id': 0, 'uid': 1, 'discount': 1, 'created': 1}).sort(
+            [('created', -1)]).to_list(None)
+        if coupons:
+            for coupon in coupons:
+                user = yield self.db['hamlet'].user \
+                    .find_one({'id': coupon['uid']}, {'_id': 0, 'nickname': 1, 'mobile': 1, 'headimg': 1})
+                coupon['created'] = time.strftime('%Y-%m-%d %X', time.localtime(int(coupon['created']) / 1000))
+                coupon['discount'] = int(coupon['discount'] / 100)
+                coupon['headimg'] = user['headimg']
+                coupon['text'] = '红包的金额和你的颜值一样高哦'
+                if user['nickname']:
+                    if len(user['nickname']) > 7:
+                        coupon['nickname'] = user['nickname'][:6] + '*' * 2
+                    else:
+                        coupon['nickname'] = user['nickname']
+                else:
+                    coupon['nickname'] = user['mobile'][:3] + '*' * 6 + user['mobile'][-2:]
+
+        else:
+            coupons = []
+
+        if coupon_pack['remains'] <= 0:  # 优惠券已经被抢光
+            # self.write(error(ErrorCode.UNKOWN, "优惠券已经被抢光"))
+            self.render('coupon/coupon_error.html', data={'msg': '抢光了', 'coupons': coupons})
+            return
+
+        # 获取历史优惠券信息
+        coupon = {}
+        try:
+            # self.set_cookie("yc_mobile", '18521592117')
+            # cookie_mobile = self.get_secure_cookie("yc_mobile")
+            cookie_mobile = self.get_cookie("yc_mobile")
+            if cookie_mobile:
+                # 获取 uid
+                user = yield self.db['hamlet'].user.find_one({'mobile': cookie_mobile}, {'_id': 0, 'id': 1})
+                if user:
+                    # 获取该批次优惠券
+                    coupon = yield self.db['youcai'].coupon \
+                        .find_one({'cpid': coupon_pack['id'], 'uid': user['id']},
+                                  {'_id': 0, 'id': 1, 'type': 1, 'distype': 1, 'discount': 1, 'charge': 1}
+                                  )
+        except Exception as e:
+            log.error(e)
+            self.write(error(ErrorCode.SRVERR, '呃，出了点小问题，有菜君正在处理，请稍候再试！'))
+            return
+
+        if coupon:
+            coupon['discount'] = int(coupon['discount']/100)
+        else:
+            coupon = {}
+
+        self.render('coupon/coupon.html', coupon_pack=coupon_pack, coupon=coupon, data={'coupons': coupons})
+
+
+# 有菜优惠券说明
+class CouponInfoHandler(AuthHandler):
+    def get(self):
+        self.render('coupon/coupon_info.html')
+
+
 class YoucaiWeb(Application):
     def __init__(self):
         handlers = [
@@ -177,7 +271,14 @@ class YoucaiWeb(Application):
             (r'/api/home', home.HomeHandler),
             (r'/api/auth/send_smscode', auth.SendSmscodeHandler),
             (r'/api/auth/login', auth.LoginHandler),
-            (r'/api/order', order.OrderHandler)
+            (r'/api/order', order.OrderHandler),
+
+            # (r'/download/yc', YcDownloadHandler),  # 有菜下载
+            (r'/coupon', CouponHandler),  # 有菜优惠券
+            (r'/api/yc/coupon', coupon.CouponHandler),  # 有菜获取优惠券接口
+            (r'/api/yc/send_smscode', coupon.SendSmscodeHandler),  # 接受手机号，发送验证码接口
+            (r'/api/yc/update_mobile', coupon.UpdateMobileHandler),  # 更改红包领取手机号
+            (r'/coupon/yc_info', CouponInfoHandler),  # 有菜优惠券说明
         ]
         settings = dict(
             debug=options.debug,

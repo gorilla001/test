@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="yes" name="apple-mobile-web-app-capable"/>
+    <meta content="yes" name="apple-touch-fullscreen"/>
+    <meta content="telephone=no,email=no" name="format-detection"/>
+    <!-- <meta content="maximum-dpr=2" name="flexible"/> -->
+    <!-- <meta content="modeName=750-12" name="grid"/> -->
+
+    <title>有菜红包</title>
+    <script>
+        !function(){var a="@charset \"utf-8\";html{color:#000;background:#fff;overflow-y:scroll;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}html *{outline:0;-webkit-text-size-adjust:none;-webkit-tap-highlight-color:rgba(0,0,0,0)}html,body{font-family:sans-serif}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td,hr,button,article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{margin:0;padding:0}input,select,textarea{font-size:100%}table{border-collapse:collapse;border-spacing:0}fieldset,img{border:0}abbr,acronym{border:0;font-variant:normal}del{text-decoration:line-through}address,caption,cite,code,dfn,em,th,var{font-style:normal;font-weight:500}ol,ul{list-style:none}caption,th{text-align:left}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:500}q:before,q:after{content:''}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sup{top:-.5em}sub{bottom:-.25em}a:hover{text-decoration:underline}ins,a{text-decoration:none}",b=document.createElement("style");if(document.getElementsByTagName("head")[0].appendChild(b),b.styleSheet)b.styleSheet.disabled||(b.styleSheet.cssText=a);else try{b.innerHTML=a}catch(c){b.innerText=a}}();!function(a,b){function c(){var b=f.getBoundingClientRect().width;b/i>540&&(b=540*i);var c=b/10;f.style.fontSize=c+"px",k.rem=a.rem=c}var d,e=a.document,f=e.documentElement,g=e.querySelector('meta[name="viewport"]'),h=e.querySelector('meta[name="flexible"]'),i=0,j=0,k=b.flexible||(b.flexible={});if(g){console.warn("将根据已有的meta标签来设置缩放比例");var l=g.getAttribute("content").match(/initial\-scale=([\d\.]+)/);l&&(j=parseFloat(l[1]),i=parseInt(1/j))}else if(h){var m=h.getAttribute("content");if(m){var n=m.match(/initial\-dpr=([\d\.]+)/),o=m.match(/maximum\-dpr=([\d\.]+)/);n&&(i=parseFloat(n[1]),j=parseFloat((1/i).toFixed(2))),o&&(i=parseFloat(o[1]),j=parseFloat((1/i).toFixed(2)))}}if(!i&&!j){var p=(a.navigator.appVersion.match(/android/gi),a.navigator.appVersion.match(/iphone/gi)),q=a.devicePixelRatio;i=p?q>=3&&(!i||i>=3)?3:q>=2&&(!i||i>=2)?2:1:1,j=1/i}if(f.setAttribute("data-dpr",i),!g)if(g=e.createElement("meta"),g.setAttribute("name","viewport"),g.setAttribute("content","initial-scale="+j+", maximum-scale="+j+", minimum-scale="+j+", user-scalable=no"),f.firstElementChild)f.firstElementChild.appendChild(g);else{var r=e.createElement("div");r.appendChild(g),e.write(r.innerHTML)}a.addEventListener("resize",function(){clearTimeout(d),d=setTimeout(c,300)},!1),a.addEventListener("pageshow",function(a){a.persisted&&(clearTimeout(d),d=setTimeout(c,300))},!1),"complete"===e.readyState?e.body.style.fontSize=12*i+"px":e.addEventListener("DOMContentLoaded",function(){e.body.style.fontSize=12*i+"px"},!1),c(),k.dpr=a.dpr=i,k.refreshRem=c,k.rem2px=function(a){var b=parseFloat(a)*this.rem;return"string"==typeof a&&a.match(/rem$/)&&(b+="px"),b},k.px2rem=function(a){var b=parseFloat(a)/this.rem;return"string"==typeof a&&a.match(/px$/)&&(b+="rem"),b}}(window,window.lib||(window.lib={}));
+    </script>
+
+    <!--<link rel="stylesheet" type="text/css" href="{{ static_url('page/yc/coupon/detail.css') }}"/>-->
+    <!--<link rel="stylesheet" type="text/css" href="{{ static_url('page/yc/coupon/source/f7.css') }}"/>-->
+
+    <link rel="stylesheet" type="text/css" href="/static/coupon/style/detail_0fb1f03.css"/>
+    <link rel="stylesheet" type="text/css" href="/static/coupon/style/source/f7_3159d70.css"/>
+</head>
+<body>
+
+<div id="content">
+
+    <div class="head">
+        <img src="/static/coupon/img/head.jpg"/>
+    </div>
+
+    <div class="body">
+        <div id="" class="action_1 {{ '' if coupon else 'activity' }}">
+            <input type="tel" name="mobile" id="mobile" maxlength="11" placeholder="请输入您的手机号"/>
+            <button name="action" id="draw">马上领取</button>
+        </div>
+        <div id="" class="action_2 {{ 'activity' if coupon else '' }}">
+            <div class="amount">
+                <img src="/static/coupon/img/hb.png"/>
+                <div class="text">
+                    <span class="type">￥</span>
+                    <span class="number" id="number">{{ coupon.get('discount', '') }}</span>
+                </div>
+            </div>
+            <div class="hint">
+                <span>红包已放入账户！赶快去使用吧，不要过期喔~</span>
+                <br/>
+                <span class="mobile"></span>
+                <span class="up_mobile">修改></span>
+                <!--<span class="">修改</span>-->
+            </div>
+{#            <a class="external btn" href="https://cun.im/yc">快去使用红包吧</a>#}
+            <a class="external btn" href="https://cun.im/yc">快去使用红包吧</a>
+        </div>
+        <div class="action_3">
+            <!--<button name="action_3" id="download">下载有菜客户端</button>-->
+{#            <a class="external btn" href="https://cun.im/yc">下载有菜客户端</a>#}
+{#            <a class="external btn" href="https://cun.im/yc">快去使用红包吧</a>#}
+        </div>
+    </div>
+
+    {% if data['coupons'] %}
+    <div class="history">
+        <img src="/static/coupon/img/foot_top_2.png"/>
+        <ol>
+            {% for couponItem in data['coupons'] %}
+            <li class="row-2">
+                <div class="row-1">
+                    <img src="{{ couponItem['headimg'] }}"/>
+                    <div class="text">
+                        <div>
+                            <h3>{{ couponItem['nickname'] }}</h3>
+                            {{ couponItem['created'] }}
+                        </div>
+                        <div>{{ couponItem['text'] }}</div>
+                    </div>
+                </div>
+                <div class="discount">{{ couponItem['discount'] }}元</div>
+            </li>
+            {% end %}
+        </ol>
+    </div>
+    {% end %}
+
+    <div class="foot">
+        <img src="/static/coupon/img/foot_top.png"/>
+        <ol>
+            <li>红包新老用户同享</li>
+            <li>红包不能叠加使用</li>
+            <li>红包仅限在有菜最新版客户端下单且选择在线支付时使用</li>
+            <li>使用红包时下单手机号码必须为抢红包时手机号码</li>
+            <li>本活动最终解释权归有菜所有</li>
+        </ol>
+    </div>
+
+    <div class="about">
+        <img src="/static/coupon/img/foot_top_3.png"/>
+
+        <p>有菜是为儿童和家庭服务的。在食品安全人人自危的今天，有菜为下一代孩子身体健康和营养价值考虑，为儿童和家庭提供营养健康绿色安全的蔬菜、农作物。有菜所提供的蔬菜均无农药残留、无化肥、无激素和无除草剂，这一切都是为了下一代的孩子。
+            <a class="external" href="/about/ycabout2">更多详情》</a>
+        </p>
+    </div>
+</div>
+
+<!--<script type="text/javascript" src="{{ static_url('page/yc/js/zepto.min.js') }}"></script>-->
+<!--<script type="text/javascript" src="{{ static_url('page/yc/js/store.min.js') }}"></script>-->
+<!--<script type="text/javascript" src="{{ static_url('page/yc/coupon/f7.custom.min.js') }}"></script>-->
+<!--<script type="text/javascript" src="{{ static_url('page/yc/coupon/main.min.js') }}"></script>-->
+
+<!--<script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>-->
+
+<script type="text/javascript" src="/static/bower_components/zepto/zepto.min_1abd55c.js"></script>
+<script type="text/javascript" src="/static/bower_components/store2/dist/store2.min_362313f.js"></script>
+<script type="text/javascript" src="/static/coupon/script/f7.custom.min_257940f.js"></script>
+<script type="text/javascript" src="/static/coupon/script/main.min_d0eff4d.js"></script>
+
+<script type="text/javascript">
+
+</script>
+
+<script>
+    var code = '{{ coupon_pack['code'] }}';
+
+    $(function () {
+
+    });
+</script>
+{#{% raw xsrf_form_html() %}#}
+
+</body>
+</html>
