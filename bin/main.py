@@ -273,6 +273,9 @@ class YoucaiWeb(Application):
             (r'/api/auth/login', auth.LoginHandler),
             (r'/api/order', order.OrderHandler),
 
+            (r'/util/smscode', util.SmscodeHandler),
+            (r'/util/region', util.RegionHandler),
+
             # (r'/download/yc', YcDownloadHandler),  # 有菜下载
             (r'/coupon', CouponHandler),  # 有菜优惠券
             (r'/api/coupon', coupon.CouponHandler),  # 有菜获取优惠券接口
