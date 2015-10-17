@@ -70,6 +70,8 @@ class SessionManager(object):
             session_id = self._generate_id()
             hmac_key = self._generate_hmac(session_id)
         else:
+            session_id = session_id.decode()
+            hmac_key = hmac_key.decode()
             session_exists = True
 
         check_hmac = self._generate_hmac(session_id)
@@ -86,8 +88,8 @@ class SessionManager(object):
 
     def set(self, request_handler, session):
         if self.secure:
-            request_handler.set_secure_cookie('sid', session.session_id, httponly=True, secure=True)
-            request_handler.set_secure_cookie('skey', session.hmac_key, httponly=True, secure=True)
+            request_handler.set_secure_cookie('sid', session.session_id, domain='.shequcun.com', httponly=True, secure=True)
+            request_handler.set_secure_cookie('skey', session.hmac_key, domain='.shequcun.com', httponly=True, secure=True)
         else:
             request_handler.set_secure_cookie('sid', session.session_id, httponly=True)
             request_handler.set_secure_cookie('skey', session.hmac_key, httponly=True)
@@ -97,14 +99,17 @@ class SessionManager(object):
 
     def remove(self, request_handler, session):
         self.redis.delete(session.session_id)
-        request_handler.clear_all_cookies()
+        if self.secure:
+            request_handler.clear_all_cookies(domain='.shequcun.com')
+        else:
+            request_handler.clear_all_cookies()
 
     def _generate_id(self):
         new_id = hashlib.sha1((self.secret + uuid.uuid4().hex).encode())
-        return new_id.hexdigest().encode()
+        return new_id.hexdigest()
 
     def _generate_hmac(self, session_id):
-        return hmac.new(session_id, self.secret.encode(), hashlib.sha1).hexdigest().encode()
+        return hmac.new(session_id.encode(), self.secret.encode(), hashlib.sha1).hexdigest()
 
 
 class InvalidSessionException(Exception):
