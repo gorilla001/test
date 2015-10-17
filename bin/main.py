@@ -269,12 +269,11 @@ class YoucaiWeb(Application):
             (r'/api/address', address.AddressHandler),
             (r'/api/recom_item', recom_item.DetailHandler),
             (r'/api/home', home.HomeHandler),
-            (r'/api/auth/send_smscode', auth.SendSmscodeHandler),
             (r'/api/auth/login', auth.LoginHandler),
             (r'/api/order', order.OrderHandler),
 
-            (r'/util/smscode', util.SmscodeHandler),
-            (r'/util/region', util.RegionHandler),
+            (r'/api/util/smscode', util.SmscodeHandler),
+            (r'/api/util/region', util.RegionHandler),
 
             # (r'/download/yc', YcDownloadHandler),  # 有菜下载
             (r'/coupon', CouponHandler),  # 有菜优惠券

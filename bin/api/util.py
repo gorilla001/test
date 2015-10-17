@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
-import datetime
-import json
-import os
+
 import random
 import time
-import uuid
-import requests
 from tornado.gen import coroutine
-from conf.settings import AMAP_CONF, log, IMAGE_DOMAIN, UPLOAD_PATH
-from constants import SMS_TYPE_SQC_LOGIN, SMS_TYPE_SQC_MOBILE, SMS_TYPE_YOUCAI_LOGIN, SMS_TYPE_YOUCAI_MOBILE
+from conf.settings import AMAP_CONF, log
 from base import AuthHandler, BaseHandler, unblock
 from util.helper import error, ErrorCode, gen_owcode, streamtype
 
@@ -16,11 +11,13 @@ from util.helper import error, ErrorCode, gen_owcode, streamtype
 class SmscodeHandler(AuthHandler):
     @coroutine
     def post(self):
-        '''
-        接受手机号，发送验证码
+        '''接受手机号，发送验证码
         '''
         try:
             mobile = self.get_argument('mobile')
+            if not mobile:
+                return self.write(error(ErrorCode.PARAMERR))
+
         except Exception as e:
             log.error(e)
             self.write(error(ErrorCode.PARAMERR))
