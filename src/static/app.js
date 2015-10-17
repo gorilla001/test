@@ -152,13 +152,17 @@ var fun = {
         }
         for (var i = 0; i < address_list.length; i++) {
             if (id == address_list[i].id) {
-
-                console.log(address_list[i])
                 return address_list[i];
             }
         }
     }
 };
+
+//过滤器
+//Vue.filter('format', function (value) {
+//  return value.split('').reverse().join('')
+//});
+
 
 //var Foo = Vue.extend({
 //    template: '<div class="foo">' +
@@ -281,9 +285,6 @@ var Index = Vue.extend({
     methods: {
         //getList: function (e, id) {
         getList: function (id) {
-            //console.log(e)
-            //console.log(id)
-            //console.log(this.nav_activity)
 
             //if (id != this.nav_activity) {
             //    this.nav_activity = id;
@@ -331,6 +332,7 @@ var RecomItem = Vue.extend({
     },
     created: function () {
         var id = this.$route.params.id;
+        //this.$http.jsonp('https://api.shequcun.com/cai/itemdtl', {id: id}, function (data, status, request) {
         this.$http.get('/api/recom_item', {id: id}, function (data, status, request) {
 
             this.status = '';
@@ -839,6 +841,7 @@ var App = Vue.extend({
     },
     created: function () {
         //console.log('app created...')
+        var self = this;
 
         //this.$on('b', function (data) {
         //    console.log(data);
@@ -847,24 +850,24 @@ var App = Vue.extend({
         //})
 
         //保存用户地址
-        this.$once('return_address_list', function (_address_list) {
+        //self.$once('return_address_list', function (_address_list) {
+        self.$on('return_address_list', function (_address_list) {
             fun.set_address_list(_address_list);
         });
 
         //获取用户地址
         //this.$on('get_address_list', function (args) {
-        this.$on('get_address_list', function () {
+        self.$on('get_address_list', function () {
             if (!(undefined === address_list || null === address_list)) {
-                this.$emit('return_address_list', address_list) && this.$broadcast('return_address_list', address_list);
-                //args.on && this.$emit(args.on, args.param) && this.$broadcast(args.on, args.param);
+                self.$emit('return_address_list', address_list) && self.$broadcast('return_address_list', address_list);
                 return false;
             }
-            this.$http.get('/api/address', {}, function (data, status, request) {
+            self.$http.get('/api/address', {}, function (data, status, request) {
                 fun.errcodeFun(data);
 
                 var address_list = data;
 
-                this.$emit('return_address_list', address_list) && this.$broadcast('return_address_list', address_list);
+                self.$emit('return_address_list', address_list) && self.$broadcast('return_address_list', address_list);
 
                 //callFun(data)
                 return false;
@@ -875,26 +878,26 @@ var App = Vue.extend({
         });
 
         //根据 id 获取对应地址
-        this.$on('get_address', function (id) {
+        self.$on('get_address', function (id) {
             if (!address_list) {
                 console.warn('address_list为空');
 
-                this.$once('return_address_list', function (_address_list) {
+                self.$once('return_address_list', function (_address_list) {
                     this.$emit('get_address', id);
                 });
 
-                this.$emit('get_address_list', {on: 'get_address', param: id});
+                self.$emit('get_address_list', {on: 'get_address', param: id});
                 //this.$emit('get_address_list', [id, 'get_address']);
                 return;
             }
             for (var i = 0; i < address_list.length; i++) {
                 if (id == address_list[i].id) {
-                    this.$broadcast('return_address', address_list[i]);
+                    self.$broadcast('return_address', address_list[i]);
                 }
             }
         });
 
-        this.$on('remove_address_list', function () {
+        self.$on('remove_address_list', function () {
             address_list = null;
         });
     },
