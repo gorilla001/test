@@ -199,14 +199,35 @@ class OrderHandler(AuthHandler):
             fee = disprice + freight
             result.update({'fee': fee, 'freight': freight})
             if paytype == 2:  # 支付宝支付
-                alipay_info = ALIPAY_CONF['order_info'].format(orderno=order_no,
-                                                               title=title,
-                                                               body='有菜H5订单',
-                                                               price=fee / 100,
-                                                               apptype=APPTYPE_YOUCAI,
-                                                               extra='')
-                sign = base64.encodebytes(rsa.sign(alipay_info.encode(), PRI_KEY, 'SHA-1')).decode().replace('\n', '')
-                alipay = alipay_info + ('&sign="%s"&sign_type="RSA"' % urllib.parse.quote_plus(sign))
+                alipay_info = {
+                    'partner': "2088911366083289",
+                    'seller_id': "liushouchang@shequcun.com",
+                    'out_trade_no': order_no,
+                    'subject': title,
+                    'body': "有菜H5订单",
+                    'total_fee': "%.2f" % (fee/100),
+                    'notify_url': "https://api.shequcun.com/alipay/notify?apptype={apptype}&extra={extra}".format(apptype=APPTYPE_YOUCAI, extra=''),
+                    'service': "alipay.wap.create.direct.pay.by.user",
+                    'payment_type': 1,
+                    '_input_charset': "utf-8",
+                    'it_b_pay': "30m",
+                    'return_url': "https://youcai.shequcun.com/#!/pay_result"
+                }
+                acc = []
+                for param in sorted(alipay_info.items(), key=itemgetter(0)):
+                    if param[1]:
+                        acc.append('%s=%s' % (param[0], param[1]))
+                # alipay_info = ALIPAY_CONF['order_info'].format(orderno=order_no,
+                #                                                title=title,
+                #                                                body='有菜H5订单',
+                #                                                price=fee / 100,
+                #                                                apptype=APPTYPE_YOUCAI,
+                #                                                extra='')
+
+                sign = base64.encodebytes(rsa.sign('&'.join(acc).encode(), PRI_KEY, 'SHA-1')).decode().replace('\n', '')
+                print(sign)
+                alipay = '&'.join(acc) + ('&sign=%s&sign_type=RSA' % urllib.parse.quote_plus(sign))
+                print(alipay)
                 # result.update({'alipay': alipay})
                 result.update({'alipay': alipay.replace('"', '')})
             elif paytype == 3:  # 微信支付
