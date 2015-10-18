@@ -8,6 +8,7 @@ import urllib
 import base64
 import xmltodict
 import hashlib
+from urllib.parse import urlencode
 from constants import APPTYPE_YOUCAI
 from operator import itemgetter
 from tornado.gen import coroutine
@@ -206,7 +207,8 @@ class OrderHandler(AuthHandler):
                     'subject': title,
                     'body': "有菜H5订单",
                     'total_fee': "%.2f" % (fee/100),
-                    'notify_url': "https://api.shequcun.com/alipay/notify?apptype={apptype}&extra={extra}".format(apptype=APPTYPE_YOUCAI, extra=''),
+                    # 'notify_url': "https://api.shequcun.com/alipay/notify?apptype={apptype}&extra={extra}".format(apptype=APPTYPE_YOUCAI, extra=''),
+                    'notify_url': "https://api.shequcun.com/alipay/notify?apptype={apptype}".format(apptype=APPTYPE_YOUCAI),
                     'service': "alipay.wap.create.direct.pay.by.user",
                     'payment_type': "1",
                     '_input_charset': "utf-8",
@@ -223,7 +225,7 @@ class OrderHandler(AuthHandler):
                     'sign': sign,
                     'sign_type': 'RSA'
                 })
-                result.update({'alipay': alipay_info})
+                result.update({'alipay': urlencode(alipay_info)})
             elif paytype == 3:  # 微信支付
                 params = {
                     'appid': YOUCAI_WXPAY_CONF['appid'],
