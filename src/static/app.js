@@ -541,12 +541,14 @@ var Buy = Vue.extend({
                     //window.location.href = url;
                 } else if (2 == paytype) {  // 支付宝支付
                     //alert('支付宝支付')
-                    //url = 'https://mapi.alipay.com/gateway.do?' + data.alipay;
+                    url = 'https://mapi.alipay.com/gateway.do?' + data.alipay;
+                    //console.log(url)
+                    //return;
 
                     //util.post_submit('https://mapi.alipay.com/gateway.do?', {a: 1, b: 2});
 
-                    util.post_submit('https://mapi.alipay.com/gateway.do?', data.alipay);
-                    return;
+                    //util.post_submit('https://mapi.alipay.com/gateway.do?', data.alipay);
+                    //return;
                 }
                 //console.log(url)
                 window.location.href = url;
