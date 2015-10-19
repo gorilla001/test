@@ -530,7 +530,7 @@ var Buy = Vue.extend({
 
                 //TODO 去支付
                 //console.log('去支付');
-                console.log(data);
+                //console.log(data);
 
                 var url = '';
                 //去支付
@@ -541,7 +541,8 @@ var Buy = Vue.extend({
                     //window.location.href = url;
                 } else if (2 == paytype) {  // 支付宝支付
                     //alert('支付宝支付')
-                    url = 'https://mapi.alipay.com/gateway.do?' + data.alipay;
+                    //url = 'https://mapi.alipay.com/gateway.do?' + data.alipay;
+                    url = data.alipay;
                     //console.log(url)
                     //return;
 
