@@ -132,7 +132,11 @@ class OrderHandler(AuthHandler):
         title = yield self.get_extras_title(raw_extras_list)
         combo, combo_idx = None, None
         combo_order_no = 0
-        yield self.create_order(oid, order_no, combo_order_no, order_type, item_type, price, status, times, fid,
+
+        # freight
+        freight = 1000 if item_type == 2 and price < 9900 else 0
+
+        yield self.create_order(oid, order_no, combo_order_no, order_type, item_type, price, freight, status, times, fid,
                                 fname, combo, combo_idx, name, mobile, address, memo, title)
 
         try:
@@ -194,10 +198,11 @@ class OrderHandler(AuthHandler):
 
         result = {'orderno': str(order_no)}
         if price != 0:
-            disprice = price
-
-            freight = 1000 if item_type == 2 and price < 9900 else 0
-            fee = disprice + freight
+            # disprice = price
+            #
+            # freight = 1000 if item_type == 2 and price < 9900 else 0
+            # fee = disprice + freight
+            fee = price + freight
             result.update({'fee': fee, 'freight': freight})
             if paytype == 2:  # 支付宝支付
                 alipay_info = {
@@ -315,7 +320,7 @@ class OrderHandler(AuthHandler):
             log.error(exc)
             return self.write(error(ErrorCode.DBERR))
 
-    def create_order(self, oid, order_no, combo_order_no, order_type, item_type, price, status, times, fid, farm,
+    def create_order(self, oid, order_no, combo_order_no, order_type, item_type, price, freight, status, times, fid, farm,
                      combo, combo_idx, name, mobile, address, memo, title=None):
         oid = oid
         order_no = order_no
@@ -337,6 +342,7 @@ class OrderHandler(AuthHandler):
             year = combo['year']
             issue_no = combo['issue_no']
         price = price
+        freight = freight
         times = times
         name = name
         mobile = mobile
@@ -355,7 +361,7 @@ class OrderHandler(AuthHandler):
         kwargs = dict(id=oid, orderno=order_no, con=combo_order_no, uid=uid,
                       combo_id=combo_id, combo_idx=combo_idx, coupon_id=0, fid=fid, farm=farm,
                       title=title, img=img, year=year, issue_no=issue_no, type=order_type, item_type=item_type,
-                      price=price, times=times, name=name, mobile=mobile, address=address, memo=memo,
+                      price=price, freight=freight, times=times, name=name, mobile=mobile, address=address, memo=memo,
                       paytype=paytype, status=status, chgtime=chgtime, created=now, modified=now)
 
         try:

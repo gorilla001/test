@@ -118,7 +118,6 @@ class IndexHandler(AuthHandler):
 class PayHandler(AuthHandler):
     @coroutine
     def get(self):
-
         if self.userid == 0:
             return self.write(error(ErrorCode.LOGINERR))
 
@@ -144,7 +143,7 @@ class PayHandler(AuthHandler):
 
         # import random
         # 支付参数
-        params = make_order(self.session.get('openid'), order['title'], order['orderno'], order['price'],
+        params = make_order(self.session.get('openid'), order['title'], order['orderno'], order['price'] + order['freight'],
                             self.request.remote_ip)
         # log.info(params)
         self.render('pay_weixin.html', params=params)
