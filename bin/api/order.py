@@ -225,7 +225,9 @@ class OrderHandler(AuthHandler):
                     'sign': sign,
                     'sign_type': 'RSA'
                 })
-                result.update({'alipay': urlencode(alipay_info)})
+                resp = yield AsyncHTTPClient().fetch("https://mapi.alipay.com/gateway.do?" + urlencode(alipay_info))
+                # result.update({'alipay': "https://mapi.alipay.com/gateway.do?" + urlencode(alipay_info)})
+                result.update({'alipay': resp.effective_url})
             elif paytype == 3:  # 微信支付
                 params = {
                     'appid': YOUCAI_WXPAY_CONF['appid'],
