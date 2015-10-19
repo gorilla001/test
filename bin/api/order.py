@@ -240,18 +240,19 @@ class OrderHandler(AuthHandler):
                     'nonce_str': uuid.uuid4().hex,
                     'body': title,
                     'detail': '公众号扫码订单',
-                    'attach': '',
                     'out_trade_no': order_no,
                     'total_fee': fee,
                     'spbill_create_ip': self.request.remote_ip,
                     'notify_url': YOUCAI_WXPAY_CONF['notify'],
-                    'trade_type': 'JSAPI'
+                    'trade_type': 'JSAPI',
+                    'openid': self.session.get('openid')
                 }
                 params.update({'sign': wxpay_sign(params)})
                 try:
                     xml = xmltodict.unparse({'xml': params}, full_document=False)
                     resp = yield AsyncHTTPClient().fetch(YOUCAI_WXPAY_CONF['url'] + '/pay/unifiedorder', method='POST', body=xml)
                     ret = xmltodict.parse(resp.body.decode())['xml']
+
                     if ret['return_code'] == 'SUCCESS' and ret['result_code'] == 'SUCCESS':
                         sign = ret.pop('sign')
                         if sign == wxpay_sign(ret):
@@ -260,11 +261,15 @@ class OrderHandler(AuthHandler):
                                 'timeStamp': round(time.time()),
                                 'nonceStr': uuid.uuid4().hex,
                                 'package': 'prepay_id={prepay_id}'.format(prepay_id=ret['prepay_id']),
-                                'signType': 'MD5',
+                                'signType': 'MD5'
                             }
                             ret_sign = wxpay_sign(pay_params)
                             pay_params.update({'paySign': ret_sign})
-                            result.update({'wxpay': pay_params})
+
+                            self.session['wx_pay'] = pay_params
+                            self.session.save()
+                    else:
+                        log.error(ret)
                 except Exception as e:
                     log.error(e)
 

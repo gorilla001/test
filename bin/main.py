@@ -103,66 +103,45 @@ class IndexHandler(AuthHandler):
             return self.write(error(ErrorCode.REQERR, '请求openid出错'))
 
 
-# 微信入口
-# class WxHandler(AuthHandler):
+# class PayHandler(AuthHandler):
+#     @coroutine
 #     def get(self):
-#         redirect_uri = urllib.parse.quote(self.request.protocol + '://' + self.request.host)
-#         # url = urllib.parse.quote('https://youcai.shequcun.com')
-#         # redirect_uri = 'https%3A%2F%2Fm.youcai.xin'
-#         url = 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=' + YOUCAI_WXPAY_CONF['appid'] + \
-#               '&redirect_uri=' + redirect_uri \
-#               + '&response_type=code&scope=snsapi_base&state=STATE&connect_redirect=1#wechat_redirect'
-#         self.redirect(url)
+#         if self.userid == 0:
+#             return self.write(error(ErrorCode.LOGINERR))
+#
+#         try:
+#             orderno = int(self.get_argument('orderno'))  # 订单号
+#         except Exception as e:
+#             log.error(e)
+#             self.redirect('/')
+#             return
+#
+#         query = {'uid': self.userid, 'orderno': orderno}
+#         try:
+#             order = yield self.db['youcai'].order.find_one(query)
+#         except Exception as exc:
+#             log.error(exc)
+#             return self.write(error(ErrorCode.DBERR))
+#
+#         if not order:
+#             # 订单不存在
+#             self.redirect('/')
+#         # self.redirect('/#!pay_result')
+#         # return;
+#
+#         # import random
+#         # 支付参数
+#         params = make_order(self.session.get('openid'), order['title'], order['orderno'], order['price'] + order['freight'],
+#                             self.request.remote_ip)
+#         # log.info(params)
+#         self.render('pay_weixin.html', params=params)
 
 
 class PayHandler(AuthHandler):
-    @coroutine
     def get(self):
-        if self.userid == 0:
-            return self.write(error(ErrorCode.LOGINERR))
-
-        try:
-            orderno = int(self.get_argument('orderno'))  # 订单号
-        except Exception as e:
-            log.error(e)
+        if not self.userid:
             self.redirect('/')
-            return
-
-        query = {'uid': self.userid, 'orderno': orderno}
-        try:
-            order = yield self.db['youcai'].order.find_one(query)
-        except Exception as exc:
-            log.error(exc)
-            return self.write(error(ErrorCode.DBERR))
-
-        if not order:
-            # 订单不存在
-            self.redirect('/')
-        # self.redirect('/#!pay_result')
-        # return;
-
-        # import random
-        # 支付参数
-        params = make_order(self.session.get('openid'), order['title'], order['orderno'], order['price'] + order['freight'],
-                            self.request.remote_ip)
-        # log.info(params)
-        self.render('pay_weixin.html', params=params)
-
-
-# class PayWeixinTestHandler(AuthHandler):
-#     # @coroutine
-#     def get(self):
-#         try:
-#             # 支付参数
-#             import random
-#
-#             params = make_order(self.session.get('openid'), "测试支付", random.randint(1000000000000, 9999999999999), 1,
-#                                 self.request.remote_ip)
-#             log.error(params)
-#             self.render('pay_weixin_test.html', params=params)
-#         except Exception as e:
-#             log.error(e)
-#             return self.write(error(ErrorCode.PARAMERR))
+        self.render("pay_weixin.html", params=self.session.get('wx_pay'))
 
 
 # 有菜优惠券
