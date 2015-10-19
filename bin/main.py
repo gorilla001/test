@@ -173,11 +173,16 @@ class CouponHandler(AuthHandler):
 
         try:
             code = self.get_argument('code', None) or None
+            source = self.get_argument('s', '') or ''  # 来源
         except Exception as e:
             log.error(e)
             code = None
 
-        data={'msg': '已过期', 'coupons': []}
+        # qmmf:全民免费
+        if source not in ['qmmf']:  # 排除无效值
+            source = ''
+
+        data = {'msg': '已过期', 'coupons': []}
 
         if not code:    # code 未传递
             # self.write(error(ErrorCode.UNKOWN, 'code 未传递'))
@@ -249,7 +254,7 @@ class CouponHandler(AuthHandler):
         else:
             coupon = {}
 
-        self.render('coupon/coupon.html', coupon_pack=coupon_pack, coupon=coupon, data={'coupons': coupons})
+        self.render('coupon/coupon.html', coupon_pack=coupon_pack, coupon=coupon, data={'coupons': coupons, 'source': source})
 
 
 # 有菜优惠券说明
