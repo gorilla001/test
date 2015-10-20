@@ -757,6 +757,7 @@ var AddressDetail = Vue.extend({
         //获取北京地区区县
         this.$http.get('/api/util/region', {pid: 1}, function (data, status, request) {
             this.$set('region_list', data.regions);
+            data.regions.length && this.$set('address.region', data.regions[0].name);
 
             this.$dispatch('get_address', this.address_id);
 
@@ -802,6 +803,23 @@ var AddressDetail = Vue.extend({
         save: function () {
             var self = this;
             !self.address.city && (self.address.city = '北京');  //默认北京
+
+            if (!self.address.name) {
+                alert('请填写您的姓名');
+                return;
+            }
+            if (!self.address.mobile) {
+                alert('请填写您的手机号');
+                return;
+            }
+            if (!self.address.region) {
+                alert('请选择区域');
+                return;
+            }
+            if (!self.address.address) {
+                alert('请填写详细地址');
+                return;
+            }
 
             this.$http.post('/api/address', this.address, function (data, status, request) {
                 if (data && data.errcode) {

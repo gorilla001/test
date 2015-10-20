@@ -30,11 +30,11 @@ class AddressHandler(AuthHandler):
 
         try:
             aid = int(self.get_argument('id', None) or 0)
-            name = self.get_argument('name', '')
-            mobile = self.get_argument('mobile', '')
-            city = self.get_argument('city', '')
-            region = self.get_argument('region', '')
-            address = self.get_argument('address', '')
+            name = self.get_argument('name')
+            mobile = self.get_argument('mobile')
+            city = self.get_argument('city', '北京')
+            region = self.get_argument('region')
+            address = self.get_argument('address')
         except Exception as e:
             log.error(e)
             return self.write(error(ErrorCode.PARAMERR))
