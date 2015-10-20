@@ -86,7 +86,6 @@ var app = {
 //购物车
 //var cart = [];
 var address_list;
-var address_index = 0;
 
 //Vue.config.debug = true; // 开启调试模式
 
@@ -229,6 +228,10 @@ Vue.component('c-textarea', {
     '</div>',
     methods: {
         save: function () {
+             //TODO 待优化(不支持其它地方调用)
+            var cache_order = store.get('cache_order');
+            cache_order.memo = this.text;
+            store.set('cache_order', cache_order);
             this.hasShow = false;
         }
     }
@@ -405,6 +408,10 @@ var Buy = Vue.extend({
     template: '#buy-template',
     data: function () {
         return {
+            //cache_order: {          //创建订单前缓存
+            //    address_id: 0,       //地址
+            //    mome: ''            //备注
+            //},
             address: {},            //收货地址
             cart_list: [],          //购物车
             memo: '',               //备注
@@ -412,7 +419,7 @@ var Buy = Vue.extend({
             freight: 10 * 100,      //运费
             limit: 99 * 100,        //减免运费界限
             all_price: 0,           //订单总价
-            show_textarea: false    //是否显示大文本输入框组件
+            show_textarea: false   //是否显示大文本输入框组件
         }
     },
     created: function () {
@@ -429,6 +436,13 @@ var Buy = Vue.extend({
         }
         this.$set('cart_list', cart);
 
+        var cache_order = store.get('cache_order');
+        if (!cache_order) {
+            cache_order = {};
+            store.set('cache_order', cache_order);
+        }
+        this.$set('memo', cache_order.memo);
+
         // 计算订单总价
         this.count_all_price();
 
@@ -443,7 +457,17 @@ var Buy = Vue.extend({
         //});
 
         this.$on('return_address_list', function (_address_list) {
-            this.$set('address', _address_list[address_index]);
+
+            var address_id = cache_order.address_id;
+
+            var index = 0;
+            for (var i = 0, len = _address_list.length; i < len; i++) {
+                if (_address_list[i].id == address_id) {
+                    index = i;
+                    break;
+                }
+            }
+            this.$set('address', _address_list[index]);
         });
         this.$dispatch('get_address_list');
     },
@@ -575,6 +599,8 @@ var PayResult = Vue.extend({
     created: function () {
         //清除购物车数据
         store.remove('cart');
+        //清除订单缓存
+        store.remove('cache_order');
     }
 });
 
@@ -703,7 +729,9 @@ var Address = Vue.extend({
             }
             address.default = true;
 
-            address_index = index;
+            var cache_order = store.get('cache_order');
+            cache_order.address_id = address.id;
+            store.set('cache_order', cache_order);
             //router.go({
             router.replace({
                 name: 'buy',
