@@ -145,7 +145,7 @@
 <!--购买页-->
 <script type="text/x-template" id="buy-template">
     <div id="p-buy">
-        <section class="block address">
+        <section class="block address" v-show="address.id">
             <a class="row-1 btn" v-link="{ path: '/address'}">
                 <div class="info">
                     <div><span>(% address.name %)</span>(% address.mobile %)</div>
@@ -153,6 +153,12 @@
                 </div>
                 <!--<div>></div>-->
                 <img class="icon" src="./static/img/icon_right.png"/>
+            </a>
+        </section>
+        <section class="block add" v-show="!address">
+            <a class="row btn" href="#!/address/0">
+                <img src="static/img/add.png">
+                <span>添加地址</span>
             </a>
         </section>
 

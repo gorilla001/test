@@ -125,6 +125,18 @@
       transform: translateY(px2rem(25));
     }
   }
+  //添加地址
+  .add {
+    img {
+      width: px2rem(51);
+      height: px2rem(51);
+    }
+    span {
+      margin-left: .25rem;
+      line-height: px2rem(51);
+      color: #00C453;
+    }
+  }
   .item-list {
     & > * {
       height: px2rem(170);
