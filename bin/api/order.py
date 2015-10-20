@@ -4,7 +4,6 @@ import re
 import rsa
 import time
 import uuid
-import urllib
 import base64
 import xmltodict
 import hashlib
@@ -85,18 +84,24 @@ class OrderHandler(AuthHandler):
         fid = 0
         fname = ''
 
-        farm_and_items = {}
+        # farm_and_items = {}
         raw_extras_list = raw_extras.split(',')
-        for item in raw_extras_list:
-            match = re.match(r"^(\d+)\:(\d+)$", item)
-            item_id = int(match.group(1))
+        for item in raw_extras_list:                             # 这里其实还残留有问题，暂时只是购买一件商品还可以，要是
+            match = re.match(r"^(\d+)\:(\d+)$", item)           # 多件商品，而且商品列表中已经有一件购买过的秒杀商品 -->
+            item_id = int(match.group(1))                        # 中途报错，会使用户不能购买一些自己没有购买过的秒杀品
             item_obj = yield self.get_recom_item(item_id)
             if not item_obj:
                 raise ItemNotFoundError(item_id)
 
             item_obj = item_obj[0]
             recom_type = item_obj['type']
-            if recom_type == 2:  # 秒杀
+
+            if not fid:     # 既然不存在拆分订单，只要fid和fname赋过值，就无需再赋值
+                fid = item_obj['fid']
+            if not fname:
+                fname = item_obj['farm']
+
+            if recom_type == 2:  # 秒杀  然后只需对秒杀品特殊处理，删除普通单品无用处理
                 item_type = 3
                 ckey = 'seckill_%d_%d' % (self.userid, item_id)
                 seckill = self.cache.get(ckey)
@@ -107,22 +112,7 @@ class OrderHandler(AuthHandler):
 
                 yield self.add_seckill_item(self.userid, item_id)
                 self.cache.today(ckey, True)
-                fid = item_obj['fid']
-                fname = item_obj['farm']
-            if recom_type == 1:  # 普通单品
-                farm_id = int(item_obj['fid'])
-                farm = str(item_obj['farm'])
-                try:
-                    farm_and_items[(farm_id, farm)].append(item)
-                except KeyError:
-                    farm_and_items[(farm_id, farm)] = [item]
-        #         farm_id_list.append(fid)
 
-        if len(farm_and_items) == 1:
-            fid = list(farm_and_items.keys())[0][0]
-            fname = list(farm_and_items.keys())[0][1]
-        # if len(set(farm_id_list)) > 1:
-        #     fid = 0
         try:
             price = yield self.get_extras_price(raw_extras_list)
         except ItemNotFoundError as exc:
@@ -136,8 +126,8 @@ class OrderHandler(AuthHandler):
         # freight
         freight = 1000 if item_type == 2 and price < 9900 else 0
 
-        yield self.create_order(oid, order_no, combo_order_no, order_type, item_type, price, freight, status, times, fid,
-                                fname, combo, combo_idx, name, mobile, address, memo, title)
+        yield self.create_order(oid, order_no, combo_order_no, order_type, item_type, price, freight, status,
+                                times, fid, fname, combo, combo_idx, name, mobile, address, memo, title)
 
         try:
             yield self.add_extras(order_no, raw_extras_list)
@@ -145,133 +135,77 @@ class OrderHandler(AuthHandler):
             log.error(exc)
             return self.write(error(ErrorCode.NODATA, '要购买的菜品在数据库找不到'))
 
-        if fid == 0:
-            for (farm_id, farm), items in farm_and_items.items():
-                con = order_no
-                order_type = 3
-                item_type = 2
-                status = 0
-                times = 0
-                fid = farm_id
-                farm = farm
-                combo, combo_idx = None, None
-                try:
-                    split_price = yield self.get_extras_price(items)
-                except ItemNotFoundError as exc:
-                    log.error(exc)
-                    return self.write(error(ErrorCode.NODATA, '要购买的菜品在数据库找不到'))
-
-                split_title = yield self.get_extras_title(items)
-
-                items_list = []
-                for item in items:
-                    match = re.match(r"^(\d+)\:(\d+)$", item)
-                    id, amount = int(match.group(1)), int(match.group(2))
-                    obj = yield self.get_recom_item(id)
-                    if not obj:
-                        raise ItemNotFoundError(id)
-
-                    obj = obj[0]
-
-                    title = obj['title']
-                    try:
-                        img = obj['imgs'].pop()
-                    except IndexError:
-                        img = ''
-                    packw = obj['packw']
-                    packs = amount
-                    now = round(time.time() * 1000)
-
-                    item = {'siid': id,
-                            'title': title,
-                            'img': img,
-                            'packw': packw,
-                            'packs': packs,
-                            'created': now,
-                            'modified': now
-                            }
-
-                    items_list.append(item)
-
-                yield self.create_temp_order(con, order_type,item_type, split_price, status, times, fid, farm,
-                                             combo, combo_idx, name, mobile, address, memo, items_list, split_title)
-
         result = {'orderno': str(order_no)}
-        if price != 0:
-            # disprice = price
-            #
-            # freight = 1000 if item_type == 2 and price < 9900 else 0
-            # fee = disprice + freight
-            fee = price + freight
-            result.update({'fee': fee, 'freight': freight})
-            if paytype == 2:  # 支付宝支付
-                alipay_info = {
-                    'partner': "2088911366083289",
-                    'seller_id': "2088911366083289",
-                    'out_trade_no': order_no,
-                    'subject': title,
-                    'body': "有菜H5订单",
-                    'total_fee': "%.2f" % (fee/100),
-                    # 'notify_url': "https://api.shequcun.com/alipay/notify?apptype={apptype}&extra={extra}".format(apptype=APPTYPE_YOUCAI, extra=''),
-                    'notify_url': "https://api.shequcun.com/alipay/notify?apptype={apptype}".format(apptype=APPTYPE_YOUCAI),
-                    'service': "alipay.wap.create.direct.pay.by.user",
-                    'payment_type': "1",
-                    '_input_charset': "utf-8",
-                    'it_b_pay': "30m",
-                    'return_url': "https://youcai.shequcun.com/#!/pay_result"
-                }
-                acc = []
-                for param in sorted(alipay_info.items(), key=itemgetter(0)):
-                    if param[1]:
-                        acc.append('%s=%s' % (param[0], param[1]))
 
-                sign = base64.encodebytes(rsa.sign('&'.join(acc).encode(), PRI_KEY, 'SHA-1')).decode().replace('\n', '')
-                alipay_info.update({
-                    'sign': sign,
-                    'sign_type': 'RSA'
-                })
-                resp = yield AsyncHTTPClient().fetch("https://mapi.alipay.com/gateway.do?" + urlencode(alipay_info))
-                # result.update({'alipay': "https://mapi.alipay.com/gateway.do?" + urlencode(alipay_info)})
-                result.update({'alipay': resp.effective_url})
-            elif paytype == 3:  # 微信支付
-                params = {
-                    'appid': YOUCAI_WXPAY_CONF['appid'],
-                    'mch_id': YOUCAI_WXPAY_CONF['mchid'],
-                    'nonce_str': uuid.uuid4().hex,
-                    'body': title,
-                    'detail': '公众号扫码订单',
-                    'out_trade_no': order_no,
-                    'total_fee': fee,
-                    'spbill_create_ip': self.request.remote_ip,
-                    'notify_url': YOUCAI_WXPAY_CONF['notify'],
-                    'trade_type': 'JSAPI',
-                    'openid': self.session.get('openid')
-                }
-                params.update({'sign': wxpay_sign(params)})
-                try:
-                    xml = xmltodict.unparse({'xml': params}, full_document=False)
-                    resp = yield AsyncHTTPClient().fetch(YOUCAI_WXPAY_CONF['url'] + '/pay/unifiedorder', method='POST', body=xml)
-                    ret = xmltodict.parse(resp.body.decode())['xml']
+        fee = price + freight
+        result.update({'fee': fee, 'freight': freight})
+        if paytype == 2:  # 支付宝支付
+            alipay_info = {
+                'partner': "2088911366083289",
+                'seller_id': "2088911366083289",
+                'out_trade_no': order_no,
+                'subject': title,
+                'body': "有菜H5订单",
+                'total_fee': "%.2f" % (fee/100),
+                'notify_url': "https://api.shequcun.com/alipay/notify?apptype={apptype}".format(apptype=APPTYPE_YOUCAI),
+                'service': "alipay.wap.create.direct.pay.by.user",
+                'payment_type': "1",
+                '_input_charset': "utf-8",
+                'it_b_pay': "30m",
+                'return_url': "https://youcai.shequcun.com/#!/pay_result"
+            }
+            acc = []
+            for param in sorted(alipay_info.items(), key=itemgetter(0)):
+                if param[1]:
+                    acc.append('%s=%s' % (param[0], param[1]))
 
-                    if ret['return_code'] == 'SUCCESS' and ret['result_code'] == 'SUCCESS':
-                        sign = ret.pop('sign')
-                        if sign == wxpay_sign(ret):
-                            pay_params = {
-                                'appId': YOUCAI_WXPAY_CONF['appid'],
-                                'timeStamp': round(time.time()),
-                                'nonceStr': uuid.uuid4().hex,
-                                'package': 'prepay_id={prepay_id}'.format(prepay_id=ret['prepay_id']),
-                                'signType': 'MD5'
-                            }
-                            ret_sign = wxpay_sign(pay_params)
-                            pay_params.update({'paySign': ret_sign})
+            sign = base64.encodebytes(rsa.sign('&'.join(acc).encode(), PRI_KEY, 'SHA-1')).decode().replace('\n', '')
+            alipay_info.update({
+                'sign': sign,
+                'sign_type': 'RSA'
+            })
+            resp = yield AsyncHTTPClient().fetch("https://mapi.alipay.com/gateway.do?" + urlencode(alipay_info))
+            # result.update({'alipay': "https://mapi.alipay.com/gateway.do?" + urlencode(alipay_info)})
+            result.update({'alipay': resp.effective_url})
+        elif paytype == 3:  # 微信支付
+            params = {
+                'appid': YOUCAI_WXPAY_CONF['appid'],
+                'mch_id': YOUCAI_WXPAY_CONF['mchid'],
+                'nonce_str': uuid.uuid4().hex,
+                'body': title,
+                'detail': '公众号扫码订单',
+                'out_trade_no': order_no,
+                'total_fee': fee,
+                'spbill_create_ip': self.request.remote_ip,
+                'notify_url': YOUCAI_WXPAY_CONF['notify'],
+                'trade_type': 'JSAPI',
+                'openid': self.session.get('openid')
+            }
+            params.update({'sign': wxpay_sign(params)})
+            try:
+                xml = xmltodict.unparse({'xml': params}, full_document=False)
+                resp = yield AsyncHTTPClient().fetch(YOUCAI_WXPAY_CONF['url'] + '/pay/unifiedorder', method='POST', body=xml)
+                ret = xmltodict.parse(resp.body.decode())['xml']
 
-                            self.session['wx_pay'] = pay_params
-                            self.session.save()
-                    else:
-                        log.error(ret)
-                except Exception as e:
-                    log.error(e)
+                if ret['return_code'] == 'SUCCESS' and ret['result_code'] == 'SUCCESS':
+                    sign = ret.pop('sign')
+                    if sign == wxpay_sign(ret):
+                        pay_params = {
+                            'appId': YOUCAI_WXPAY_CONF['appid'],
+                            'timeStamp': round(time.time()),
+                            'nonceStr': uuid.uuid4().hex,
+                            'package': 'prepay_id={prepay_id}'.format(prepay_id=ret['prepay_id']),
+                            'signType': 'MD5'
+                        }
+                        ret_sign = wxpay_sign(pay_params)
+                        pay_params.update({'paySign': ret_sign})
+
+                        self.session['wx_pay'] = pay_params
+                        self.session.save()
+                else:
+                    log.error(ret)
+            except Exception as e:
+                log.error(e)
 
         return self.write(result)
 
@@ -371,51 +305,6 @@ class OrderHandler(AuthHandler):
 
         try:
             return self.db[_DATABASE].order.insert(kwargs)
-        except Exception as exc:
-            log.error(exc)
-            return self.write(error(ErrorCode.DBERR))
-
-    def create_temp_order(self, combo_order_no, order_type, item_type, price, status, times, fid, farm,
-                          combo, combo_idx, name, mobile, address, memo, items_list, title=None):
-        combo_order_no = combo_order_no
-        order_type = order_type  # 1 for combo order
-        item_type = item_type
-        uid = self.userid
-        combo_idx = combo_idx
-        if not combo:
-            combo_id = None
-            title = title
-            img = ''
-            year = None
-            issue_no = None
-        else:
-            combo_id = combo['id']
-            title = combo['title']
-            img = combo['img']
-            year = combo['year']
-            issue_no = combo['issue_no']
-        price = price
-        times = times
-        name = name
-        mobile = mobile
-        address = address
-        paytype = 0
-        status = status  # 0 means haven't payed yet
-
-        now = round(time.time() * 1000)
-        if order_type == 2:
-            chgtime = {"0": now, "1": now}
-        else:
-            chgtime = {"0": now}
-
-        kwargs = dict(con=combo_order_no, uid=uid,
-                      combo_id=combo_id, combo_idx=combo_idx, coupon_id=0, fid=fid, farm=farm, order_items=items_list,
-                      title=title, img=img, year=year, issue_no=issue_no, type=order_type, item_type=item_type,
-                      price=price, times=times, name=name, mobile=mobile, address=address, memo=memo,
-                      paytype=paytype, status=status, chgtime=chgtime, created=now, modified=now)
-
-        try:
-            return self.db[_DATABASE].temp_order.insert(kwargs)
         except Exception as exc:
             log.error(exc)
             return self.write(error(ErrorCode.DBERR))
