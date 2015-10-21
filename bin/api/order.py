@@ -8,7 +8,7 @@ import base64
 import xmltodict
 import hashlib
 from urllib.parse import urlencode
-from constants import APPTYPE_YOUCAI
+from constants import APPTYPE_YOUCAI_H5
 from operator import itemgetter
 from tornado.gen import coroutine
 from tornado.httpclient import AsyncHTTPClient
@@ -147,7 +147,7 @@ class OrderHandler(AuthHandler):
                 'subject': title,
                 'body': "有菜H5订单",
                 'total_fee': "%.2f" % (fee/100),
-                'notify_url': "https://api.shequcun.com/alipay/notify?apptype={apptype}".format(apptype=APPTYPE_YOUCAI),
+                'notify_url': "https://api.shequcun.com/alipay/notify?apptype={apptype}".format(apptype=APPTYPE_YOUCAI_H5),
                 'service': "alipay.wap.create.direct.pay.by.user",
                 'payment_type': "1",
                 '_input_charset': "utf-8",
