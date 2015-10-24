@@ -48,7 +48,7 @@
 
                     <div class="row-1 text_1">
                         <span>(% recom_item.packw/500 %)斤/份</span><span>(% recom_item.sales %)人选择</span></div>
-                    <div class="row text_2"><span class="price">￥(% (recom_item.price*0.01).toFixed(2) %)</span><span>￥(% (recom_item.mprice*0.01).toFixed(2) %)</span>
+                    <div class="row text_2"><span class="price">￥(% (recom_item.price*0.01).toFixed(2) %)</span><span class="old" v-show="recom_item.mprice">￥(% (recom_item.mprice*0.01).toFixed(2) %)</span>
                     </div>
                 </div>
                 <div class="badge" v-class="activity : 2==recom_item.type">秒杀</div>
@@ -108,7 +108,7 @@
             <div class="m-b-30" v-html="data.descr"></div>
             <div>
                 <span class="price f-z-lg">￥(% (data.price*0.01).toFixed(2) %)</span>
-                <span class="mprice f-z-sm t-d-l-t">￥(% (data.mprice*0.01).toFixed(2) %)</span>
+                <span class="mprice f-z-sm t-d-l-t" v-show="data.mprice">￥(% (data.mprice*0.01).toFixed(2) %)</span>
                 <span class="sales f-z-sm">(% data.sales %)人选择</span>
             </div>
         </section>
