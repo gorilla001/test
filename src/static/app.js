@@ -242,12 +242,16 @@ Vue.component('c-bottom-buy', Vue.extend({
     data: function () {
         return {
             count: 1,
-            type: 2
+            type: 2,        // 商品类型
+            has_buy: false  // 是否可以购买
+
         }
     },
     created: function () {
         this.$on('return_recom_item', function () {
             this.$set('type', this.$parent.data.type);
+            //上架 && 剩余总量 > 0
+            this.$set('has_buy', (1 == this.$parent.data.status && this.$parent.data.remains > 0) ? true : false);
         });
     },
     methods: {
@@ -293,7 +297,7 @@ Vue.component('c-bottom-buy', Vue.extend({
     //v-attr="disabled: dis"\'disabled\'
     //template: '<div class="c-bottom-buy row-1"><div class="action"><button class="btn reduce" v-attr="disabled:count>1?false:true" v-on="click: count--">-</button><span class="count">(%count%)</span><button class="btn increase" v-on="click: count++">+</button></div><a class="btn add" v-link="{ path: \'/login\'}">登录</a><a class="btn add" v-on="click: buy()">立即购买</a></div>'
     //template: '<div class="c-bottom-buy row-1"><div class="action"><button class="btn reduce" v-attr="disabled:count>1?false:true" v-on="click: count--">-</button><span class="count">(%count%)</span><button class="btn increase" v-on="click: jia()">+</button></div><a class="btn add" v-on="click: buy()">立即购买</a></div>'
-    template: '<div class="c-bottom-buy row-1"><div v-show="2==type"></div><div class="action" v-show="2!=type"><button class="btn reduce" v-attr="disabled:count>1?false:true" v-on="click: count--">━</button><span class="count">(%count%)</span><button class="btn increase" v-on="click: count++">╋</button></div><a class="btn add" v-on="click: buy()">立即购买</a></div>'
+    template: '<div class="c-bottom-buy row-1" v-show="has_buy"><div v-show="2==type"></div><div class="action" v-show="2!=type"><button class="btn reduce" v-attr="disabled:count>1?false:true" v-on="click: count--">━</button><span class="count">(%count%)</span><button class="btn increase" v-on="click: count++">╋</button></div><a class="btn add" v-on="click: buy()">立即购买</a></div>'
 }));
 
 var Index = Vue.extend({
@@ -355,6 +359,14 @@ var RecomItem = Vue.extend({
         var id = this.$route.params.id;
         //this.$http.jsonp('https://api.shequcun.com/cai/itemdtl', {id: id}, function (data, status, request) {
         this.$http.get('/api/recom_item', {id: id}, function (data, status, request) {
+            if (data.errcode || !data.id) {
+                //数据错误,去首页
+                router.replace({
+                    name: 'index',
+                    params: {}
+                });
+                return;
+            }
 
             this.status = '';
             // set data on vm
