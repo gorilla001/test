@@ -228,7 +228,7 @@ Vue.component('c-textarea', {
     '</div>',
     methods: {
         save: function () {
-             //TODO 待优化(不支持其它地方调用)
+            //TODO 待优化(不支持其它地方调用)
             var cache_order = store.get('cache_order');
             cache_order.memo = this.text;
             store.set('cache_order', cache_order);
@@ -300,52 +300,42 @@ var Index = Vue.extend({
     template: '#index-template',
     data: function () {
         return {
-            //data: null,
-            //nav_list: [
-            //    '家装', '家政', '商超', '养老', '汽车',
-            //    '汽车1', '汽车2', '汽车3', '汽车4', '汽车5', '汽车6', '汽车7', '汽车8', '汽车9', '汽车10', '汽车11', '汽车12', '汽车13', '汽车14'
-            //],
             status: '',
-            //nav_list: nav_list,
-            ////nav_activity: '全部',
-            //nav_activity: nav_list[0],
-
-            list: []
+            recom_item_list: [],
+            status: 'read'  // read,load
         }
     },
     methods: {
-        //getList: function (e, id) {
-        getList: function (id) {
+        getList: function () {
+            var self = this;
+            if ('load' === self.status) {
+                return;
+            }
+            self.status = 'load';
+            var lastid = self.recom_item_list.length > 0 ? self.recom_item_list[self.recom_item_list.length - 1].id : 0;
+            var params = {
+                lastid: lastid
+            };
+            self.$http.get('/api/itemlist', params, function (data, status, request) {
+                fun.errcodeFun(data);
 
-            //if (id != this.nav_activity) {
-            //    this.nav_activity = id;
-            //    this.list = [];
-            //}
-            //
-            //this.status = 'load';
-            //
-            //// ajax
-            //// GET request
-            //this.$http.get('/test/list.json', {id: this.nav_activity}, function (data, status, request) {
-            //
-            //    console.log(data)
-            //    this.status = '';
-            //    // set data on self
-            //    //this.$set('list', this.list.concat(data))
-            //    this.list = this.list.concat(data);
-            //}).error(function (data, status, request) {
-            //    // handle error
-            //})
+                self.status = 'read';
+
+                self.$set('recom_item_list', self.recom_item_list.concat(data.items));
+
+            }).error(function (data, status, request) {
+                // handle error
+            });
         }
     },
     created: function () {
-        this.$http.get('/api/home', {page: 1}, function (data, status, request) {
-            fun.errcodeFun(data);
+        var slef = this;
+        slef.getList();
 
-            this.$set('recom_item_list', data.recom_item_list);
-
-        }).error(function (data, status, request) {
-            // handle error
+        $(window).scroll(function () {
+            if (($(window).height() + $(window).scrollTop() + 150) > $(document).height()) {
+                slef.getList();
+            }
         });
     },
     ready: function () {

@@ -252,6 +252,7 @@ class YoucaiWeb(Application):
             (r'/api/address', address.AddressHandler),
             (r'/api/recom_item', recom_item.DetailHandler),
             (r'/api/home', home.HomeHandler),
+            (r'/api/itemlist', home.ItemHandler),
             (r'/api/auth/login', auth.LoginHandler),
             (r'/api/order', order.OrderHandler),
 
