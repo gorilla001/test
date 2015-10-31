@@ -42,7 +42,8 @@ WXPAY_CONF = {
 }
 
 IMAGE_DEFAULT = 'https://img.shequcun.com/zone.jpg'
-IMAGE_DOMAIN = '/static/upload'
+# IMAGE_DOMAIN = '/static/upload'
+IMAGE_DOMAIN = 'https://img.shequcun.com'
 UPLOAD_PATH = os.path.join(ROOT_PATH, 'static', 'upload')
 UPLOAD_DOC_PATH = os.path.join(ROOT_PATH, 'static', 'upload', 'import')
 IMG_CACHE_URL = 'http://7xjgn9.com2.z0.glb.qiniucdn.com'

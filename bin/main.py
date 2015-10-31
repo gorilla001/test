@@ -33,6 +33,8 @@ class IndexHandler(AuthHandler):
         # hasWx = True if -1 != ua.find('MicroMessenger') else False
         hasWx = 'MicroMessenger' in ua
 
+        hasWx = False
+
         state_url = self.get_argument('state', '')  # state 此参数扫码进来 如: http://192.168.1.222:8003/?state=recomitem/15
 
         if hasWx:  # 微信
